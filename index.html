@@ -1614,6 +1614,102 @@ function defaultSpells() {
     },
 
     // ════════════════════════════════════════════════════
+    // LEVEL 1 — RANGER
+    // (Rangers have no level 0 spells in D&D 3.5e)
+    // ════════════════════════════════════════════════════
+    {
+      id: uid(), name: 'Animal Messenger', level: 1, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 day/level',
+      components: 'V, S, M (a morsel of food the animal likes)', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'You compel a Tiny animal to go to a spot you designate. The most common use for this spell is to get an animal to carry a message to your allies. The animal cannot be one that is your animal companion or familiar. The animal travels to the destination on its own, avoiding dangers as best it can.\n\nWhen the animal arrives, it waits there for up to one day. If you gave the animal a message, it delivers the message to the person indicated when that person approaches.\n\nSaving Throw: None; see text\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Calm Animals', level: 1, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 min/level',
+      components: 'V, S', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'This spell soothes and quiets animals, rendering them docile and harmless. Only ordinary animals (those with Intelligence scores of 1 or 2) can be affected by this spell. All the animals affected must be of the same kind, and no two affected animals can be more than 30 feet apart.\n\nThe affected creatures remain where they are and do not attack or flee. They are not helpless and defend themselves normally if attacked. Any threat breaks the spell on the threatened creatures.\n\nAffects 2d4+1 HD worth of animals.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Charm Animal', level: 1, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level',
+      components: 'V, S', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'This spell functions like charm person, except that it affects a creature of the animal type. The charmed animal regards you as a trusted friend. You can communicate with the animal normally, but it has no special ability to understand your language.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Delay Poison', level: 1, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 hour/level',
+      components: 'V, S, DF', classes: 'Bard, Cleric, Druid, Paladin, Ranger',
+      concentration: false, ritual: false,
+      description: 'The subject becomes temporarily immune to poison. Any poison in its system or any poison to which it is exposed during the spell\'s duration does not affect the subject until the spell\'s duration has expired. Delay poison does not cure any damage that poison may have already done.\n\nSaving Throw: Fortitude negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Detect Animals or Plants', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: '60 ft (cone)', duration: 'Concentration, up to 10 min/level',
+      components: 'V, S', classes: 'Druid, Ranger',
+      concentration: true, ritual: false,
+      description: 'You can detect a particular kind of animal or plant in a cone emanating out from you in whatever direction you face. You must think of a specific kind of animal or plant when using the spell. The amount of information revealed depends on how long you search a particular area or subject.\n\n1st round: Presence or absence of that kind of animal or plant in the area.\n2nd round: Number of individuals of the specified kind in the area, and the condition of the healthiest such animal or plant.\n3rd round: The location and condition of each such animal or plant.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Detect Snares and Pits', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: '60 ft (cone)', duration: 'Concentration, up to 10 min/level',
+      components: 'V, S', classes: 'Druid, Ranger',
+      concentration: true, ritual: false,
+      description: 'You can detect simple pits, deadfalls, and snares as well as mechanical traps constructed of natural materials. The spell does not detect complex mechanical traps (including those of metal).\n\n1st round: Presence or absence of hazards.\n2nd round: Number of hazards and the location of the nearest one.\n3rd round: The location and type of each hazard.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Entangle', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'Grasses, weeds, bushes, and even trees wrap, twist, and entwine about creatures in the area or those that enter the area, holding them fast and causing them to become entangled. The creature can break free and move half its normal speed by using a full-round action to make a DC 20 Strength check or a DC 20 Escape Artist check.\n\nA creature that succeeds on a Reflex save is not entangled but can still move at only half speed through the area. Each round on your turn, the plants once again attempt to entangle all creatures that have avoided or broken free.\n\nSaving Throw: Reflex partial; see text\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Hide from Animals', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'S, DF', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'Animals cannot see, hear, or smell the warded creatures. Even extraordinary or supernatural sensory capabilities, such as blindsense, blindsight, scent, and tremorsense, cannot detect or locate warded creatures. Animals simply act as though the warded creatures are not there.\n\nIf a warded creature touches an animal or attacks any creature, the spell ends for all warded creatures.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Longstrider', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 hour/level',
+      components: 'V, S, M (a pinch of dirt)', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'This spell increases your base land speed by 10 feet. This adjustment is treated as an enhancement bonus. There is no effect on other modes of movement, such as burrow, climb, fly, or swim.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Magic Fang', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'Magic fang gives one natural weapon of the subject a +1 enhancement bonus on attack and damage rolls. The spell can affect a bite, claw, gore, tail, or other natural weapon. The enhancement bonus does not apply to thrown or manufactured weapons, only to natural weapons.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Pass without Trace', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 hour/level',
+      components: 'V, S, DF', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'The subject or subjects can move through any type of terrain and leave neither footprints nor scent. Tracking the subjects is impossible by nonmagical means. The subjects can walk across sand without leaving footprints, walk through water without creating ripples, and climb trees without breaking branches.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Speak with Animals', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S', classes: 'Bard, Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'You can comprehend and communicate with animals. You are able to ask questions of and receive answers from animals, although the spell doesn\'t make them more friendly or cooperative than normal. Wary and cunning animals are likely to be terse and evasive, while more animalistic ones make simple comments.\n\nFurthermore, creatures that are friendly toward you may do some favor or service for you.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Summon Nature's Ally I", level: 1, school: 'Conjuration',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, DF', classes: 'Druid, Ranger',
+      concentration: false, ritual: false,
+      description: 'This spell summons a natural creature from the Summon Nature\'s Ally I list. It appears where you designate and acts immediately on your turn, attacking your opponents to the best of its ability.\n\nCommon summons include: black bear cub (as dire rat stats), eagle, Medium shark, Small snake, or wolf. The creature serves you for the spell\'s duration.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+
+    // ════════════════════════════════════════════════════
     // LEVEL 1
     // ════════════════════════════════════════════════════
     {
