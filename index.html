@@ -706,7 +706,6 @@
       transition: color 0.15s, border-color 0.15s;
       padding: 10px 0;
       -webkit-tap-highlight-color: transparent;
-      max-width: 120px;
     }
 
     .tab-btn .tab-icon { font-size: 1.5rem; line-height: 1; }
@@ -2891,6 +2890,8 @@ updateOrb();
 renderLog();
 renderTable();
 renderPrepared();
+switchTab('counter');      // mobile: start on Points tab
+switchDesktopTab('spells'); // desktop: start on Spell Repository
 </script>
 </body>
 </html>
