@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spell Point Tracker &amp; Repository</title>
+  <meta name="theme-color" content="#0d0d14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Arcane Ledger" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Arcane Ledger — Spell Tracker</title>
   <style>
     /* ── Reset & Base ─────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -663,6 +668,147 @@
 
     /* ── Divider ──────────────────────────────────────── */
     .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    /* ── Mobile Tab Bar ───────────────────────────────── */
+    .tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 150;
+      height: 60px;
+    }
+
+    .tab-bar-inner { display: flex; height: 100%; }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 0.65rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: color 0.15s;
+      padding: 8px 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tab-btn .tab-icon { font-size: 1.3rem; line-height: 1; }
+    .tab-btn.active { color: var(--gold-light); }
+    .tab-btn.active .tab-icon { filter: drop-shadow(0 0 6px var(--gold)); }
+
+    /* ── Spell Cards (mobile) ─────────────────────────── */
+    .spell-cards { display: none; flex-direction: column; gap: 10px; }
+
+    .spell-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .spell-card:active { border-color: var(--arcane-l); background: rgba(107,79,168,0.15); }
+
+    .spell-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .spell-card-name { font-size: 1rem; font-weight: bold; color: var(--text-head); flex: 1; }
+
+    .spell-card-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .spell-card-stats { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .spell-card-stat { font-size: 0.78rem; color: var(--text-dim); }
+    .spell-card-stat span { color: var(--text); }
+
+    .spell-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .spell-card-actions .icon-btn { flex: 1; padding: 10px; text-align: center; font-size: 0.85rem; }
+
+    /* ── Mobile overrides ─────────────────────────────── */
+    @media (max-width: 640px) {
+      header { padding: 12px 16px; }
+      header h1 { font-size: 1.2rem; letter-spacing: 1px; }
+      header p { display: none; }
+      .header-icon { font-size: 1.5rem; }
+
+      .tab-bar { display: flex; }
+
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 12px 12px 72px;
+        gap: 0;
+      }
+
+      .tab-panel { display: none; }
+      .tab-panel.active { display: block; }
+
+      .sp-btn { padding: 12px 18px; font-size: 0.9rem; }
+      .sp-controls { gap: 10px; }
+      .sp-orb { width: 140px; height: 140px; }
+      .sp-orb .current { font-size: 2.4rem; }
+
+      .level-grid { grid-template-columns: repeat(5, 1fr); }
+      .lvl-btn { padding: 10px 2px; }
+      .lvl-btn .lvl-num { font-size: 1rem; }
+
+      .search-bar { flex-direction: column; }
+      .search-bar input { min-width: unset; }
+      .search-bar select, .search-bar input { font-size: 1rem; padding: 11px 12px; }
+      .btn-primary, .btn-ghost { width: 100%; padding: 12px; text-align: center; font-size: 0.95rem; }
+
+      .spell-table-wrap { display: none; }
+      .spell-cards { display: flex; }
+
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal { max-width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
+
+      .field input, .field select, .field textarea { font-size: 1rem; padding: 11px 12px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .full { grid-column: 1; }
+
+      .spell-stat-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .toast-container { bottom: auto; top: 74px; right: 12px; left: 12px; }
+      .toast { max-width: 100%; text-align: center; }
+
+      .checkbox-row input[type=checkbox] { width: 20px; height: 20px; }
+    }
+
+    @media (min-width: 641px) {
+      .tab-panel { display: block !important; }
+      .spell-table-wrap { display: block !important; }
+      .spell-cards { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -676,11 +822,25 @@
   </div>
 </header>
 
+<!-- Mobile Tab Bar -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" onclick="switchTab('counter')" id="tab-counter">
+      <span class="tab-icon">◈</span>
+      <span>Points</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('spells')" id="tab-spells">
+      <span class="tab-icon">📜</span>
+      <span>Spells</span>
+    </button>
+  </div>
+</nav>
+
 <!-- Main Layout -->
 <div class="layout">
 
   <!-- LEFT: Spell Point Counter -->
-  <aside>
+  <aside class="tab-panel active" id="panel-counter">
     <div class="panel">
       <div class="panel-header">
         <span class="icon">◈</span>
@@ -741,7 +901,7 @@
   </aside>
 
   <!-- RIGHT: Spell Repository -->
-  <div class="right-col">
+  <div class="right-col tab-panel" id="panel-spells">
     <div class="panel">
       <div class="panel-header">
         <span class="icon">📜</span>
@@ -801,6 +961,9 @@
             <p>No spells match your search.</p>
           </div>
         </div>
+
+        <!-- Spell Cards (mobile) -->
+        <div class="spell-cards" id="spellCards"></div>
 
       </div>
     </div>
@@ -1107,6 +1270,33 @@ function renderTable() {
         </div>
       </td>
     </tr>
+  `).join('');
+
+  // Mobile cards
+  document.getElementById('spellCards').innerHTML = filtered.map(s => `
+    <div class="spell-card" onclick="viewSpell('${s.id}')">
+      <div class="spell-card-top">
+        <span class="spell-card-name">${s.name}</span>
+        ${s.level === 0
+          ? '<span class="badge badge-level0">Level 0</span>'
+          : `<span class="badge badge-level">${ordinal(s.level)}</span>`}
+      </div>
+      <div class="spell-card-meta">
+        <span class="school-tag">${s.school}</span>
+        ${s.concentration ? '<span class="conc-badge">Concentration</span>' : ''}
+        ${s.ritual ? '<span class="ritual-badge">Ritual</span>' : ''}
+      </div>
+      <div class="spell-card-stats">
+        <span class="spell-card-stat">Cast: <span>${s.castTime}</span></span>
+        <span class="spell-card-stat">Range: <span>${s.range}</span></span>
+        <span class="spell-card-stat">Duration: <span>${s.duration}</span></span>
+      </div>
+      <div class="spell-card-actions" onclick="event.stopPropagation()">
+        <button class="icon-btn" onclick="viewSpell('${s.id}')">👁 View</button>
+        <button class="icon-btn" onclick="editSpell('${s.id}')">✎ Edit</button>
+        <button class="icon-btn delete" onclick="deleteSpell('${s.id}')">✕ Delete</button>
+      </div>
+    </div>
   `).join('');
 }
 
@@ -2303,6 +2493,14 @@ function defaultSpells() {
       description: 'An invisible vertical curtain of wind appears. It is 2 feet thick and of considerable strength. The wall keeps out gases, wind-driven rain, and similar threats. Small flying creatures cannot pass through the wall, and medium ones must succeed on a DC 25 Fly check. Arrows and other normal ranged weapons are deflected upward and miss.\n\nGaseous breath weapons and gases cannot pass through the wall.\n\nSaving Throw: None; see text\nSpell Resistance: Yes'
     },
   ];
+}
+
+// ── Tab Switching (mobile) ─────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
 }
 
 // ── Init ───────────────────────────────────────────────
