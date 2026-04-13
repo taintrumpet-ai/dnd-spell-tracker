@@ -1,0 +1,2158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spell Point Tracker &amp; Repository</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0d0d14;
+      --surface:    #16161f;
+      --surface2:   #1e1e2e;
+      --border:     #2e2e45;
+      --gold:       #c9a84c;
+      --gold-light: #e8c96e;
+      --gold-dim:   #7a6530;
+      --crimson:    #9b2335;
+      --crimson-l:  #c42c42;
+      --arcane:     #6b4fa8;
+      --arcane-l:   #8b6fcb;
+      --text:       #d4cfc7;
+      --text-dim:   #7a7570;
+      --text-head:  #f0e8d8;
+      --green:      #3a7a4a;
+      --green-l:    #4da060;
+      --radius:     6px;
+      --shadow:     0 4px 24px rgba(0,0,0,0.6);
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── Scrollbar ────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── Header ───────────────────────────────────────── */
+    header {
+      background: linear-gradient(180deg, #0a0a10 0%, var(--surface) 100%);
+      border-bottom: 2px solid var(--gold-dim);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.8);
+    }
+
+    .header-icon { font-size: 2rem; filter: drop-shadow(0 0 8px var(--gold)); }
+
+    header h1 {
+      font-size: 1.6rem;
+      color: var(--gold-light);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      font-style: italic;
+    }
+
+    /* ── Layout ───────────────────────────────────────── */
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      padding: 24px 32px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; padding: 16px; }
+    }
+
+    /* ── Panel / Card ─────────────────────────────────── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      background: linear-gradient(90deg, var(--surface2) 0%, #222232 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-header h2 {
+      font-size: 0.9rem;
+      color: var(--gold);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .panel-header .icon { font-size: 1rem; }
+
+    .panel-body { padding: 18px; }
+
+    /* ── Spell Point Counter ──────────────────────────── */
+    .sp-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin: 10px 0 20px;
+    }
+
+    .sp-orb {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    .sp-orb svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+    .sp-orb .track { fill: none; stroke: var(--surface2); stroke-width: 8; }
+    .sp-orb .fill  {
+      fill: none;
+      stroke: var(--arcane);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;
+      filter: drop-shadow(0 0 6px var(--arcane));
+    }
+
+    .sp-orb .label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .sp-orb .current {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--gold-light);
+      line-height: 1;
+      text-shadow: 0 0 12px rgba(201,168,76,0.6);
+    }
+
+    .sp-orb .divider { font-size: 0.7rem; color: var(--text-dim); margin: 1px 0; }
+    .sp-orb .max { font-size: 0.85rem; color: var(--text-dim); }
+
+    .sp-controls { display: flex; flex-direction: column; gap: 8px; }
+
+    .sp-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: inherit;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .sp-btn:hover { border-color: var(--gold-dim); color: var(--gold-light); background: #252535; }
+    .sp-btn.danger { border-color: var(--crimson); color: #e07080; }
+    .sp-btn.danger:hover { background: rgba(155,35,53,0.2); }
+    .sp-btn.success { border-color: var(--green); color: var(--green-l); }
+    .sp-btn.success:hover { background: rgba(58,122,74,0.2); }
+
+    /* ── Max SP Input ─────────────────────────────────── */
+    .sp-config {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 7px 10px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--arcane-l);
+    }
+
+    .field select option { background: var(--surface2); }
+
+    /* ── Spell Level Spending ─────────────────────────── */
+    .spend-title {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .lvl-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 8px 4px;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .lvl-btn:hover:not(:disabled) {
+      border-color: var(--arcane-l);
+      background: rgba(107,79,168,0.2);
+      color: var(--arcane-l);
+    }
+
+    .lvl-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .lvl-btn .lvl-num {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--gold);
+      display: block;
+      line-height: 1;
+    }
+
+    .lvl-btn .lvl-cost {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* ── History Log ──────────────────────────────────── */
+    .log {
+      margin-top: 18px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .log-title {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .log-entry {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      padding: 2px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .log-entry:last-child { border-bottom: none; }
+    .log-entry .log-val { color: var(--gold-light); font-weight: bold; }
+    .log-entry.negative .log-val { color: #e07080; }
+    .log-entry.positive .log-val { color: var(--green-l); }
+
+    /* ── Right Column ─────────────────────────────────── */
+    .right-col { display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── Search & Filter Bar ──────────────────────────── */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-bar input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 9px 14px;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    .search-bar input:focus { outline: none; border-color: var(--arcane-l); }
+
+    .search-bar select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .search-bar select:focus { outline: none; border-color: var(--arcane-l); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--arcane) 0%, #4a3578 100%);
+      border: 1px solid var(--arcane-l);
+      border-radius: var(--radius);
+      color: #d8ccf8;
+      padding: 9px 18px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .btn-primary:hover { filter: brightness(1.15); }
+
+    /* ── Spell Table ──────────────────────────────────── */
+    .spell-table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead th {
+      background: var(--surface2);
+      color: var(--gold);
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    thead th:hover { color: var(--gold-light); }
+    thead th.sorted { color: var(--gold-light); }
+    thead th .sort-arrow { margin-left: 4px; opacity: 0.6; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+
+    tbody tr:hover { background: rgba(107,79,168,0.12); }
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody td { padding: 10px 12px; vertical-align: middle; }
+
+    .spell-name { color: var(--text-head); font-weight: bold; }
+    .spell-name small { display: block; font-size: 0.72rem; color: var(--text-dim); font-weight: normal; margin-top: 1px; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .badge-level { background: rgba(107,79,168,0.3); color: var(--arcane-l); border: 1px solid var(--arcane); }
+    .badge-cantrip { background: rgba(58,122,74,0.25); color: var(--green-l); border: 1px solid var(--green); }
+
+    .school-tag {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .cast-time, .range-val, .duration-val {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .conc-badge {
+      display: inline-block;
+      background: rgba(155,35,53,0.2);
+      border: 1px solid var(--crimson);
+      color: #e07080;
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 20px;
+      margin-left: 4px;
+    }
+
+    .ritual-badge {
+      display: inline-block;
+      background: rgba(201,168,76,0.15);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 20px;
+      margin-left: 4px;
+    }
+
+    .action-cell { display: flex; gap: 6px; }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-dim);
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+    }
+
+    .icon-btn:hover { border-color: var(--gold-dim); color: var(--gold-light); }
+    .icon-btn.delete:hover { border-color: var(--crimson); color: #e07080; }
+
+    /* ── Empty State ──────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 0.9rem; font-style: italic; }
+
+    /* ── Modal ────────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.8);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface2);
+    }
+
+    .modal-head h3 { color: var(--gold-light); font-size: 1.1rem; }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 22px; }
+
+    /* Form fields inside modal */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .form-grid .full { grid-column: 1 / -1; }
+
+    .field textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .field textarea:focus { outline: none; border-color: var(--arcane-l); }
+
+    .checkbox-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text);
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: normal;
+    }
+
+    .checkbox-row input[type=checkbox] { accent-color: var(--arcane-l); width: 15px; height: 15px; }
+
+    .modal-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-dim);
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+
+    /* ── Spell View Modal ─────────────────────────────── */
+    .spell-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .spell-detail-header h2 { color: var(--gold-light); font-size: 1.3rem; }
+    .spell-detail-header .sub { color: var(--text-dim); font-style: italic; font-size: 0.85rem; margin-top: 2px; }
+
+    .spell-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .spell-stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+
+    .spell-stat .stat-label { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+    .spell-stat .stat-val { font-size: 0.9rem; color: var(--text-head); margin-top: 3px; }
+
+    .spell-desc {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      white-space: pre-wrap;
+    }
+
+    .spell-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+    /* ── Toast ─────────────────────────────────────────── */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 10px 18px;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow);
+      animation: toastIn 0.2s ease;
+      max-width: 280px;
+    }
+
+    .toast.arcane { border-color: var(--arcane); color: var(--arcane-l); }
+    .toast.success { border-color: var(--green); color: var(--green-l); }
+    .toast.warn    { border-color: var(--crimson); color: #e07080; }
+
+    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* ── Divider ──────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <span class="header-icon">✦</span>
+  <div>
+    <h1>Arcane Ledger</h1>
+    <p>Spell Point Tracker &amp; Spell Repository</p>
+  </div>
+</header>
+
+<!-- Main Layout -->
+<div class="layout">
+
+  <!-- LEFT: Spell Point Counter -->
+  <aside>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="icon">◈</span>
+        <h2>Spell Points</h2>
+      </div>
+      <div class="panel-body">
+
+        <!-- Character Config -->
+        <div class="sp-config">
+          <div class="field">
+            <label>Character Name</label>
+            <input type="text" id="charName" placeholder="e.g. Veyrin" />
+          </div>
+          <div class="field">
+            <label>Max Spell Points</label>
+            <input type="number" id="maxSP" min="0" max="999" value="17" />
+          </div>
+        </div>
+
+        <!-- Orb Display -->
+        <div class="sp-display">
+          <div class="sp-orb">
+            <svg viewBox="0 0 120 120">
+              <circle class="track" cx="60" cy="60" r="50" />
+              <circle class="fill" id="spArc" cx="60" cy="60" r="50"
+                stroke-dasharray="314"
+                stroke-dashoffset="0" />
+            </svg>
+            <div class="label">
+              <span class="current" id="spCurrent">17</span>
+              <span class="divider">of</span>
+              <span class="max" id="spMaxLabel">17</span>
+            </div>
+          </div>
+
+          <div class="sp-controls">
+            <button class="sp-btn success" onclick="adjustSP(1)">▲ +1 Point</button>
+            <button class="sp-btn danger"  onclick="adjustSP(-1)">▼ −1 Point</button>
+            <button class="sp-btn success" onclick="restSP()">☽ Long Rest</button>
+            <button class="sp-btn"         onclick="clearLog()">✕ Clear Log</button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Spend by Level -->
+        <p class="spend-title">Spend by Spell Level</p>
+        <div class="level-grid" id="levelGrid"></div>
+
+        <!-- Log -->
+        <div class="log">
+          <p class="log-title">Activity Log</p>
+          <div id="spLog"></div>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT: Spell Repository -->
+  <div class="right-col">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="icon">📜</span>
+        <h2>Spell Repository</h2>
+      </div>
+      <div class="panel-body">
+
+        <!-- Search & Filter -->
+        <div class="search-bar" style="margin-bottom:14px;">
+          <input type="text" id="searchInput" placeholder="Search by name, school, class..." oninput="renderTable()" />
+          <select id="filterLevel" onchange="renderTable()">
+            <option value="">All Levels</option>
+            <option value="0">Cantrip</option>
+            <option value="1">Level 1</option>
+            <option value="2">Level 2</option>
+            <option value="3">Level 3</option>
+            <option value="4">Level 4</option>
+            <option value="5">Level 5</option>
+            <option value="6">Level 6</option>
+            <option value="7">Level 7</option>
+            <option value="8">Level 8</option>
+            <option value="9">Level 9</option>
+          </select>
+          <select id="filterSchool" onchange="renderTable()">
+            <option value="">All Schools</option>
+            <option>Abjuration</option>
+            <option>Conjuration</option>
+            <option>Divination</option>
+            <option>Enchantment</option>
+            <option>Evocation</option>
+            <option>Illusion</option>
+            <option>Necromancy</option>
+            <option>Transmutation</option>
+          </select>
+          <button class="btn-primary" onclick="openAddModal()">+ Add Spell</button>
+          <button class="btn-ghost" onclick="loadDefaultSpells()" title="Replace spell list with all 3.5e Wizard spells (Levels 1–3)">⟳ Load Defaults</button>
+        </div>
+
+        <!-- Table -->
+        <div class="spell-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortBy('name')"       data-col="name">Name <span class="sort-arrow">↕</span></th>
+                <th onclick="sortBy('level')"      data-col="level">Level <span class="sort-arrow">↕</span></th>
+                <th onclick="sortBy('school')"     data-col="school">School <span class="sort-arrow">↕</span></th>
+                <th onclick="sortBy('castTime')"   data-col="castTime">Cast Time <span class="sort-arrow">↕</span></th>
+                <th>Range</th>
+                <th>Duration</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="spellTableBody"></tbody>
+          </table>
+          <div id="emptyState" class="empty-state" style="display:none;">
+            <div class="empty-icon">✦</div>
+            <p>No spells match your search.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add / Edit Spell Modal ─────────────────────── -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Add New Spell</h3>
+      <button class="modal-close" onclick="closeModal('addModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Spell Name</label>
+          <input type="text" id="fName" placeholder="e.g. Fireball" />
+        </div>
+        <div class="field">
+          <label>Level (0 = Cantrip)</label>
+          <select id="fLevel">
+            <option value="0">Cantrip</option>
+            <option value="1">1st</option>
+            <option value="2">2nd</option>
+            <option value="3">3rd</option>
+            <option value="4">4th</option>
+            <option value="5">5th</option>
+            <option value="6">6th</option>
+            <option value="7">7th</option>
+            <option value="8">8th</option>
+            <option value="9">9th</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>School</label>
+          <select id="fSchool">
+            <option>Abjuration</option>
+            <option>Conjuration</option>
+            <option>Divination</option>
+            <option>Enchantment</option>
+            <option selected>Evocation</option>
+            <option>Illusion</option>
+            <option>Necromancy</option>
+            <option>Transmutation</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Casting Time</label>
+          <input type="text" id="fCastTime" placeholder="e.g. 1 Action" />
+        </div>
+        <div class="field">
+          <label>Range</label>
+          <input type="text" id="fRange" placeholder="e.g. 150 ft" />
+        </div>
+        <div class="field">
+          <label>Duration</label>
+          <input type="text" id="fDuration" placeholder="e.g. Instantaneous" />
+        </div>
+        <div class="field">
+          <label>Components</label>
+          <input type="text" id="fComponents" placeholder="e.g. V, S, M (bat guano)" />
+        </div>
+        <div class="field">
+          <label>Available to Classes</label>
+          <input type="text" id="fClasses" placeholder="e.g. Wizard, Sorcerer" />
+        </div>
+        <div class="field full">
+          <label>Flags</label>
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="fConc" /> Concentration</label>
+            <label><input type="checkbox" id="fRitual" /> Ritual</label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Description</label>
+          <textarea id="fDesc" placeholder="Spell description, effects, higher-level scaling..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn-primary" onclick="saveSpell()">Save Spell</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Spell Detail View Modal ────────────────────── -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="viewModalTitle">Spell Details</h3>
+      <button class="modal-close" onclick="closeModal('viewModal')">×</button>
+    </div>
+    <div class="modal-body" id="viewModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('viewModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ── Spell Point Costs (DMG Variant) ───────────────────
+const SPELL_COSTS = { 0:0, 1:2, 2:3, 3:5, 4:6, 5:7, 6:9, 7:10, 8:11, 9:13 };
+
+// ── State ─────────────────────────────────────────────
+let spCurrent = 17;
+let spMax     = 17;
+let spells    = [];
+let editingId = null;
+let sortCol   = 'name';
+let sortDir   = 1; // 1 asc, -1 desc
+let log       = [];
+
+// ── Spell Point Logic ──────────────────────────────────
+function loadState() {
+  const saved = localStorage.getItem('arcane-ledger');
+  if (saved) {
+    try {
+      const s = JSON.parse(saved);
+      spCurrent = s.spCurrent ?? 17;
+      spMax     = s.spMax     ?? 17;
+      spells    = s.spells    ?? defaultSpells();
+      log       = s.log       ?? [];
+      document.getElementById('maxSP').value   = spMax;
+      document.getElementById('charName').value = s.charName ?? '';
+    } catch { spells = defaultSpells(); }
+  } else {
+    spells = defaultSpells();
+  }
+}
+
+function saveState() {
+  localStorage.setItem('arcane-ledger', JSON.stringify({
+    spCurrent,
+    spMax,
+    charName: document.getElementById('charName').value,
+    spells,
+    log
+  }));
+}
+
+function adjustSP(delta) {
+  const newVal = Math.max(0, Math.min(spMax, spCurrent + delta));
+  if (newVal === spCurrent) {
+    toast(delta > 0 ? 'Already at maximum!' : 'No spell points remaining!', 'warn');
+    return;
+  }
+  spCurrent = newVal;
+  addLog(`${delta > 0 ? '+' : ''}${delta} point${Math.abs(delta)!==1?'s':''}`, delta);
+  updateOrb();
+  saveState();
+}
+
+function spendLevel(level) {
+  const cost = SPELL_COSTS[level];
+  if (spCurrent < cost) {
+    toast(`Not enough points for a level ${level} spell! (need ${cost})`, 'warn');
+    return;
+  }
+  spCurrent -= cost;
+  addLog(`Cast level ${level} spell (−${cost} pts)`, -cost);
+  updateOrb();
+  saveState();
+  toast(`Level ${level} spell cast — ${cost} points spent`, 'arcane');
+}
+
+function restSP() {
+  const restored = spMax - spCurrent;
+  spCurrent = spMax;
+  addLog(`Long Rest (restored ${restored} pts)`, restored);
+  updateOrb();
+  saveState();
+  toast('Long rest taken — all spell points restored!', 'success');
+}
+
+function clearLog() {
+  log = [];
+  document.getElementById('spLog').innerHTML = '';
+  saveState();
+}
+
+function updateOrb() {
+  const pct = spMax > 0 ? spCurrent / spMax : 0;
+  const circumference = 314;
+  const offset = circumference * (1 - pct);
+  const arc = document.getElementById('spArc');
+  arc.style.strokeDashoffset = offset;
+
+  // Colour shift: green → arcane → crimson
+  if (pct > 0.5)       arc.style.stroke = 'var(--arcane)';
+  else if (pct > 0.2)  arc.style.stroke = 'var(--gold)';
+  else                 arc.style.stroke = 'var(--crimson-l)';
+
+  document.getElementById('spCurrent').textContent = spCurrent;
+  document.getElementById('spMaxLabel').textContent = spMax;
+
+  document.querySelectorAll('#levelGrid .lvl-btn').forEach(btn => {
+    const cost = parseInt(btn.dataset.cost);
+    btn.disabled = spCurrent < cost && cost > 0;
+  });
+}
+
+function addLog(msg, delta) {
+  log.unshift({ msg, delta, time: new Date().toLocaleTimeString() });
+  if (log.length > 50) log.pop();
+  renderLog();
+}
+
+function renderLog() {
+  const el = document.getElementById('spLog');
+  if (log.length === 0) {
+    el.innerHTML = '<span style="color:var(--text-dim);font-size:.75rem;font-style:italic;">No activity yet.</span>';
+    return;
+  }
+  el.innerHTML = log.map(e => {
+    const cls = e.delta > 0 ? 'positive' : (e.delta < 0 ? 'negative' : '');
+    return `<div class="log-entry ${cls}">
+      <span class="log-val">${e.msg}</span>
+      <span style="float:right;font-size:.65rem;opacity:.5;">${e.time}</span>
+    </div>`;
+  }).join('');
+}
+
+function buildLevelGrid() {
+  const grid = document.getElementById('levelGrid');
+  // Cantrip + levels 1-9
+  const levels = [0,1,2,3,4,5,6,7,8,9];
+  grid.innerHTML = levels.map(l => {
+    const cost = SPELL_COSTS[l];
+    const label = l === 0 ? 'Cantrip' : `Level ${l}`;
+    return `<button class="lvl-btn" data-cost="${cost}" onclick="spendLevel(${l})">
+      <span class="lvl-num">${l === 0 ? '✦' : l}</span>
+      <span class="lvl-cost">${cost === 0 ? 'Free' : `${cost} pts`}</span>
+    </button>`;
+  }).join('');
+}
+
+// Max SP input listener
+document.getElementById('maxSP').addEventListener('input', function () {
+  spMax = Math.max(0, parseInt(this.value) || 0);
+  if (spCurrent > spMax) spCurrent = spMax;
+  updateOrb();
+  saveState();
+});
+
+// ── Spell Repository ───────────────────────────────────
+function renderTable() {
+  const query  = document.getElementById('searchInput').value.toLowerCase();
+  const fLevel = document.getElementById('filterLevel').value;
+  const fSchool = document.getElementById('filterSchool').value.toLowerCase();
+
+  let filtered = spells.filter(s => {
+    const matchQ = !query || [s.name, s.school, s.classes, s.description].join(' ').toLowerCase().includes(query);
+    const matchL = fLevel === '' || String(s.level) === fLevel;
+    const matchS = !fSchool || s.school.toLowerCase() === fSchool;
+    return matchQ && matchL && matchS;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    let av = a[sortCol] ?? '';
+    let bv = b[sortCol] ?? '';
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+  });
+
+  const tbody = document.getElementById('spellTableBody');
+  const empty = document.getElementById('emptyState');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(s => `
+    <tr onclick="viewSpell('${s.id}')">
+      <td>
+        <span class="spell-name">${s.name}
+          ${s.concentration ? '<span class="conc-badge">C</span>' : ''}
+          ${s.ritual ? '<span class="ritual-badge">R</span>' : ''}
+          <small>${s.classes || ''}</small>
+        </span>
+      </td>
+      <td>
+        ${s.level === 0
+          ? '<span class="badge badge-cantrip">Cantrip</span>'
+          : `<span class="badge badge-level">${ordinal(s.level)}</span>`}
+      </td>
+      <td><span class="school-tag">${s.school}</span></td>
+      <td><span class="cast-time">${s.castTime}</span></td>
+      <td><span class="range-val">${s.range}</span></td>
+      <td><span class="duration-val">${s.duration}</span></td>
+      <td>
+        <div class="action-cell" onclick="event.stopPropagation()">
+          <button class="icon-btn" title="Edit"   onclick="editSpell('${s.id}')">✎</button>
+          <button class="icon-btn delete" title="Delete" onclick="deleteSpell('${s.id}')">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.col === col);
+  });
+  renderTable();
+}
+
+function viewSpell(id) {
+  const s = spells.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('viewModalTitle').textContent = s.name;
+  document.getElementById('viewModalBody').innerHTML = `
+    <div class="spell-detail-header">
+      <div>
+        <h2>${s.name}</h2>
+        <div class="sub">${s.level === 0 ? 'Cantrip' : `${ordinal(s.level)}-level`} ${s.school}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${s.concentration ? '<span class="badge" style="background:rgba(155,35,53,.2);border:1px solid var(--crimson);color:#e07080;">Concentration</span>' : ''}
+        ${s.ritual ? '<span class="badge" style="background:rgba(201,168,76,.15);border:1px solid var(--gold-dim);color:var(--gold);">Ritual</span>' : ''}
+      </div>
+    </div>
+    <div class="spell-stat-grid">
+      <div class="spell-stat"><div class="stat-label">Casting Time</div><div class="stat-val">${s.castTime || '—'}</div></div>
+      <div class="spell-stat"><div class="stat-label">Range</div><div class="stat-val">${s.range || '—'}</div></div>
+      <div class="spell-stat"><div class="stat-label">Duration</div><div class="stat-val">${s.duration || '—'}</div></div>
+      <div class="spell-stat"><div class="stat-label">Components</div><div class="stat-val">${s.components || '—'}</div></div>
+      <div class="spell-stat"><div class="stat-label">Classes</div><div class="stat-val">${s.classes || '—'}</div></div>
+      <div class="spell-stat"><div class="stat-label">Spell Point Cost</div><div class="stat-val">${s.level === 0 ? 'Free' : SPELL_COSTS[s.level] + ' pts'}</div></div>
+    </div>
+    <div class="spell-desc">${s.description || 'No description provided.'}</div>
+  `;
+  document.getElementById('viewModal').classList.add('open');
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add New Spell';
+  clearForm();
+  document.getElementById('addModal').classList.add('open');
+}
+
+function editSpell(id) {
+  const s = spells.find(x => x.id === id);
+  if (!s) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Spell';
+  document.getElementById('fName').value       = s.name;
+  document.getElementById('fLevel').value      = s.level;
+  document.getElementById('fSchool').value     = s.school;
+  document.getElementById('fCastTime').value   = s.castTime;
+  document.getElementById('fRange').value      = s.range;
+  document.getElementById('fDuration').value   = s.duration;
+  document.getElementById('fComponents').value = s.components;
+  document.getElementById('fClasses').value    = s.classes;
+  document.getElementById('fConc').checked     = s.concentration;
+  document.getElementById('fRitual').checked   = s.ritual;
+  document.getElementById('fDesc').value       = s.description;
+  document.getElementById('addModal').classList.add('open');
+}
+
+function saveSpell() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { toast('Spell name is required.', 'warn'); return; }
+
+  const spell = {
+    id:            editingId || crypto.randomUUID(),
+    name,
+    level:         parseInt(document.getElementById('fLevel').value),
+    school:        document.getElementById('fSchool').value,
+    castTime:      document.getElementById('fCastTime').value.trim() || '1 Action',
+    range:         document.getElementById('fRange').value.trim() || '—',
+    duration:      document.getElementById('fDuration').value.trim() || '—',
+    components:    document.getElementById('fComponents').value.trim(),
+    classes:       document.getElementById('fClasses').value.trim(),
+    concentration: document.getElementById('fConc').checked,
+    ritual:        document.getElementById('fRitual').checked,
+    description:   document.getElementById('fDesc').value.trim(),
+  };
+
+  if (editingId) {
+    const idx = spells.findIndex(x => x.id === editingId);
+    spells[idx] = spell;
+    toast(`"${name}" updated.`, 'success');
+  } else {
+    spells.push(spell);
+    toast(`"${name}" added to repository.`, 'success');
+  }
+
+  closeModal('addModal');
+  renderTable();
+  saveState();
+}
+
+function deleteSpell(id) {
+  const s = spells.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`Delete "${s.name}" from the repository?`)) return;
+  spells = spells.filter(x => x.id !== id);
+  renderTable();
+  saveState();
+  toast(`"${s.name}" removed.`, 'warn');
+}
+
+function clearForm() {
+  ['fName','fCastTime','fRange','fDuration','fComponents','fClasses','fDesc'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('fLevel').value  = '1';
+  document.getElementById('fSchool').value = 'Evocation';
+  document.getElementById('fConc').checked  = false;
+  document.getElementById('fRitual').checked = false;
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ── Toast ──────────────────────────────────────────────
+function toast(msg, type = '') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ── Helpers ────────────────────────────────────────────
+function ordinal(n) {
+  return n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`;
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2);
+}
+
+// ── Load / Reset Defaults ──────────────────────────────
+function loadDefaultSpells() {
+  if (!confirm('Replace the current spell list with the full D&D 3.5e Wizard spell list (Levels 1–3)?')) return;
+  spells = defaultSpells();
+  renderTable();
+  saveState();
+  toast('D&D 3.5e Wizard spells loaded!', 'success');
+}
+
+// ── Default Spell Data — D&D 3.5e Wizard, Levels 1–3 ──
+function defaultSpells() {
+  return [
+    // ════════════════════════════════════════════════════
+    // LEVEL 1
+    // ════════════════════════════════════════════════════
+    {
+      id: uid(), name: 'Alarm', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '2 hours/level',
+      components: 'V, S, F/DF (a tiny bell and fine silver wire)', classes: 'Ranger, Wizard',
+      concentration: false, ritual: false,
+      description: 'Alarm sounds a mental or audible alarm each time a creature of Tiny or larger size enters the warded area or touches it. A mental alarm alerts you (and only you) so long as you remain within 1 mile of the warded area. An audible alarm produces the sound of a hand bell, and anyone within 60 feet can hear it clearly.\n\nSaving Throw: None\nSpell Resistance: No\n\nYou can designate a password when casting the spell. Any creature that speaks the password as it enters or touches the warded area does not trigger the alarm.'
+    },
+    {
+      id: uid(), name: 'Animate Rope', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 round/level',
+      components: 'V, S', classes: 'Bard, Wizard',
+      concentration: false, ritual: false,
+      description: 'You can animate a nonliving rope-like object. The target rope moves at your direction, performing simple tasks such as coiling, twisting, looping, or knotting. The rope can knot itself around a creature, with a CMB check equal to your caster level + your Int modifier.\n\nSaving Throw: None\nSpell Resistance: No\n\nThe rope has 2 hit points per inch of thickness and can be burst with a DC 23 Strength check.'
+    },
+    {
+      id: uid(), name: 'Burning Hands', level: 1, school: 'Evocation',
+      castTime: '1 Standard Action', range: '15 ft (cone)', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A cone of searing flame shoots from your fingertips. Any creature in the area of the flames takes 1d4 points of fire damage per caster level (maximum 5d4). Flammable materials burn if the flames touch them.\n\nSaving Throw: Reflex half\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Cause Fear', level: 1, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1d4 rounds',
+      components: 'V, S', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The affected creature becomes frightened. If the subject succeeds on a Will save, it is shaken for 1 round.\n\nCause fear counters and dispels remove fear.\n\nSaving Throw: Will partial\nSpell Resistance: Yes\n\nCreatures with 6 or more Hit Dice are immune to this effect.'
+    },
+    {
+      id: uid(), name: 'Charm Person', level: 1, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This charm makes a humanoid creature regard you as its trusted friend and ally. If the creature is currently being threatened or attacked by you or your allies, however, it receives a +5 bonus on its saving throw.\n\nThe spell does not enable you to control the charmed person as if it were an automaton, but it perceives your words and actions in the most favorable way.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Chill Touch', level: 1, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A touch from your hand, which glows with blue energy, disrupts the life force of living creatures. Each touch channels negative energy that deals 1d6 points of damage. The touched creature also takes 1 point of Strength damage unless it makes a successful Fortitude saving throw.\n\nUndead creatures are turned instead of damaged.\n\nSaving Throw: Fortitude partial\nSpell Resistance: Yes\n\nYou can use this melee touch attack up to one time per caster level.'
+    },
+    {
+      id: uid(), name: 'Color Spray', level: 1, school: 'Illusion',
+      castTime: '1 Standard Action', range: '15 ft (cone)', duration: 'Instantaneous; see text',
+      components: 'V, S, M (red, yellow, and blue powder)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A vivid cone of clashing colors springs from your hand. Creatures within the cone are affected according to their Hit Dice.\n\n• 2 HD or less: The creature is unconscious, blinded, and stunned for 2d4 rounds, then blinded and stunned for 1d4 rounds, then stunned for 1 round.\n• 3 or 4 HD: The creature is blinded and stunned for 1d4 rounds, then stunned for 1 round.\n• 5 or more HD: The creature is stunned for 1 round.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Comprehend Languages', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Personal', duration: '10 min/level',
+      components: 'V, S, M/DF (pinch of soot and salt)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You can understand the spoken words of creatures or read otherwise incomprehensible written messages. In either case, you must touch the creature or the writing. The ability to read does not necessarily impart insight into the material, merely its literal meaning.\n\nComprehend languages can be made permanent with a permanency spell.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Detect Secret Doors', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: '60 ft (cone)', duration: 'Concentration, up to 1 min/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'You can detect secret doors, compartments, caches, and so forth. Only passages, doors, or openings that have been specifically constructed to escape detection are detected.\n\n1st round: Presence or absence of secret doors.\n2nd round: Number of secret doors and the location of each one.\n3rd round: Location and how to open each one.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Detect Undead', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: '60 ft (cone)', duration: 'Concentration, up to 1 min/level',
+      components: 'V, S, M/DF (earth from a grave)', classes: 'Cleric, Paladin, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'You can detect the aura that surrounds undead creatures. The amount of information revealed depends on how long you study a particular area.\n\n1st round: Presence or absence of undead auras.\n2nd round: Number of undead auras in the area and the strength of the most potent.\n3rd round: Strength and location of each aura.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Disguise Self', level: 1, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Personal', duration: '10 min/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You make yourself — including clothing, armor, weapons, and equipment — look different. You can seem 1 foot shorter or taller, thin, fat, or in between. You cannot change your creature type (although you can appear as another subtype). Otherwise, the extent of the apparent change is up to you.\n\nA successful Will save (DC 11 + your caster level) allows a viewer to see through the disguise.\n\nSaving Throw: Will disbelief (if interacted with)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Endure Elements', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '24 hours',
+      components: 'V, S', classes: 'Cleric, Druid, Paladin, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A creature protected by endure elements suffers no harm from being in a hot or cold environment. It can exist comfortably in conditions between -50 and 140 degrees Fahrenheit. The creature\'s equipment is likewise protected.\n\nEndure elements doesn\'t provide any protection from fire or cold damage, nor does it protect against other environmental hazards such as smoke, lack of air, and so forth.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Enlarge Person', level: 1, school: 'Transmutation',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 min/level',
+      components: 'V, S, M (powdered iron)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell causes instant growth of a humanoid creature, doubling its height and multiplying its weight by 8. This increase changes the creature\'s size category to the next larger one.\n\nThe target gains a +2 size bonus to Strength, a –2 size penalty to Dexterity (to a minimum of 1), and a –1 penalty on attack rolls and AC due to its increased size. A size bonus and a size penalty cancel each other out.\n\nSaving Throw: Fortitude negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Erase', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Erase removes writings of either magical or mundane nature from a scroll or from one or two pages of paper, parchment, or similar surfaces. With this spell, you can remove explosive runes, a glyph of warding, a sepia snake sigil, or an arcane mark, but not illusory script or a symbol spell.\n\nNonmagical writing is automatically erased. Magical writing requires a caster level check (DC = 15 + spell level).\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Expeditious Retreat', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell increases your base land speed by 30 feet. This adjustment is treated as an enhancement bonus. There is no effect on other modes of movement, such as burrow, climb, fly, or swim.\n\nAs with any effect that increases your speed, this spell affects your jumping distance.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Feather Fall', level: 1, school: 'Transmutation',
+      castTime: '1 Immediate Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The affected creatures or objects fall slowly. Feather fall instantly changes the rate at which the targets fall to a mere 60 feet per round (equivalent to the end of a fall from a few feet), and the subjects take no damage upon landing while the spell is in effect.\n\nThe spell affects one or more Medium or smaller creatures (including gear and carried objects up to each creature\'s maximum load), or one Large creature, or one 10-foot-square area of objects.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: "Tenser's Floating Disk", level: 1, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level',
+      components: 'V, S, M (drop of mercury)', classes: 'Wizard',
+      concentration: false, ritual: false,
+      description: 'You create a slightly concave, circular plane of force that follows you about and carries loads for you. The disk is 3 feet in diameter and 1 inch deep at its center. It can hold 100 pounds of weight per caster level.\n\nIf not otherwise directed, it maintains a constant 3-foot height above the ground and remains within 5 feet of you. The disk winks out of existence when the spell duration expires.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Grease', level: 1, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, M (butter)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A grease spell covers a solid surface with a layer of slippery grease. Any creature in the area when the spell is cast must make a Reflex save or fall. A creature can walk within or through the area of grease at half normal speed with a DC 10 Balance check.\n\nThe spell can also be cast on an object held or carried by a foe. The target must make a Reflex save or drop the item.\n\nSaving Throw: See text\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Hold Portal', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 min/level',
+      components: 'V', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell magically holds shut a door, gate, window, or shutter of wood, metal, or stone. The magic affects the portal just as if it were securely closed and normally locked. A knock spell or a successful dispel magic spell can negate a hold portal spell.\n\nFor a portal affected by this spell, add 5 to the normal DC for forcing open the portal.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Hypnotism', level: 1, school: 'Enchantment',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '2d4 rounds',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Your gestures and droning incantation fascinate nearby creatures, causing them to stop and stare blankly at you. In addition, you can make a single suggestion to each creature affected, and it will carry out your suggestion for 1 hour.\n\nAffected creatures: 2d4 HD worth of creatures. Creatures with the fewest HD are affected first.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Identify', level: 1, school: 'Divination',
+      castTime: '1 Hour', range: 'Touch', duration: 'Instantaneous',
+      components: 'V, S, M (wine worth 100 gp)', classes: 'Bard, Wizard',
+      concentration: false, ritual: false,
+      description: 'The spell determines all magic properties of a single magic item, including how to activate those functions (if appropriate) and how many charges are left (if any).\n\nIdentify does not function when used on an artifact.\n\nSaving Throw: None\nSpell Resistance: No\n\nNote: You must prepare this spell the day before casting it and must get a full night\'s rest before doing so.'
+    },
+    {
+      id: uid(), name: 'Illusory Script', level: 1, school: 'Illusion',
+      castTime: '1 Minute', range: 'Touch', duration: '1 day/level',
+      components: 'V, S, M (lead-based ink worth 50 gp)', classes: 'Bard, Wizard',
+      concentration: false, ritual: false,
+      description: 'You write instructions or other information on parchment, paper, or any suitable writing material. The illusory script appears to be some form of foreign or magical writing. Only the person (or people) designated by you at the time of the casting are able to read the writing; it is unintelligible to any other character.\n\nAny unauthorized creature attempting to read the script must make a Will save or be confused for 1d4 days.\n\nSaving Throw: Will negates\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Jump', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M (grasshopper\'s hind leg)', classes: 'Druid, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The subject gets a +10 enhancement bonus on Jump checks. At caster level 5th, the bonus increases to +20 and at 9th level, the bonus increases to +30.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Mage Armor', level: 1, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 hour/level',
+      components: 'V, S, F (a piece of cured leather)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'An invisible but tangible field of force surrounds the subject of a mage armor spell, providing a +4 armor bonus to AC. Unlike mundane armor, mage armor entails no armor check penalty, arcane spell failure chance, or speed reduction. Since mage armor is made of force, incorporeal creatures can\'t bypass it the way they do normal armor.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Magic Missile', level: 1, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A missile of magical energy darts forth from your fingertip and strikes its target, dealing 1d4+1 force damage.\n\nThe spell automatically hits and deals damage. You can fire one missile, plus one for every two caster levels beyond 1st (maximum five missiles at 9th level). If you shoot multiple missiles, you can target a single creature or several creatures.\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Magic Weapon', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Cleric, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Magic weapon gives a weapon a +1 enhancement bonus on attack and damage rolls. An enhancement bonus does not stack with a masterwork weapon\'s +1 bonus on attack rolls.\n\nYou can\'t cast this spell on a natural weapon, such as an unarmed strike.\n\nSaving Throw: Will negates (harmless, object)\nSpell Resistance: Yes (harmless, object)'
+    },
+    {
+      id: uid(), name: 'Mount', level: 1, school: 'Conjuration',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '2 hours/level',
+      components: 'V, S, M (bit of horse hair)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You summon a light horse or a pony (your choice) to serve you as a mount. The steed serves willingly and well. The mount comes with a bit and bridle and a riding saddle.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Nystul's Magic Aura", level: 1, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 day/level',
+      components: 'V, S, F (a small square of silk)', classes: 'Bard, Wizard',
+      concentration: false, ritual: false,
+      description: 'You alter an item\'s aura so that it registers to detect spells (and spells with similar capabilities) as though it were nonmagical, or a magic item of a kind you specify, or the subject of a spell you specify.\n\nIf the object bearing the spell is identified by a bard with Bardic Knowledge or via an identify spell, a DC 19 Will save must be made to pierce the disguise.\n\nSaving Throw: None; see text\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Obscuring Mist', level: 1, school: 'Conjuration',
+      castTime: '1 Standard Action', range: '20 ft (spread)', duration: '1 min/level',
+      components: 'V, S', classes: 'Air Domain, Cleric, Druid, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A misty vapor arises around you. It is stationary once created. The vapor obscures all sight, including darkvision, beyond 5 feet. A creature 5 feet away has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker can\'t use sight to locate the target).\n\nA moderate wind (11+ mph) disperses the fog in 4 rounds; a strong wind (21+ mph) disperses it in 1 round.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Protection from Evil', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (a little powdered silver)', classes: 'Cleric, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell wards a creature from attacks by evil creatures, from mental control, and from summoned creatures. It creates a magical barrier around the subject at a distance of 1 foot.\n\nThe barrier provides +2 deflection bonus to AC and a +2 resistance bonus to saves against attacks from evil creatures. It also blocks any attempt to possess the protected creature or use mental control.\n\nAlso available as Protection from Chaos, Protection from Good, Protection from Law.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No; see text'
+    },
+    {
+      id: uid(), name: 'Ray of Enfeeblement', level: 1, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A coruscating ray springs from your hand. You must succeed on a ranged touch attack to strike a target. The subject takes a penalty to Strength equal to 1d6+1 per two caster levels (maximum 1d6+5). The subject\'s Strength score cannot drop below 1.\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Reduce Person', level: 1, school: 'Transmutation',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 min/level',
+      components: 'V, S, M (pinch of powdered iron)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell causes instant diminution of a humanoid creature, halving its height, length, and width and dividing its weight by 8. This decrease changes the creature\'s size category to the next smaller one.\n\nThe target gains a –2 size penalty to Strength, a +2 size bonus to Dexterity, a +1 bonus on attack rolls, and a +1 bonus to Armor Class due to its reduced size.\n\nSaving Throw: Fortitude negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Shield', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Shield creates an invisible, tower shield-sized mobile disk of force that hovers in front of you. It negates magic missile attacks directed at you. The disk also provides a +4 shield bonus to AC. This bonus applies against incorporeal touch attacks.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Shocking Grasp', level: 1, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Your hand is wreathed in blue sparks. You must succeed on a melee touch attack to deal 1d6 points of electricity damage per caster level (maximum 5d6).\n\nWhen delivering the jolt, you gain a +3 bonus on attack rolls if the opponent is wearing metal armor (or is carrying a metal weapon or is made of metal).\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Silent Image', level: 1, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: 'Concentration',
+      components: 'V, S, F (a bit of fleece)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'This spell creates the visual illusion of an object, creature, or force, as visualized by you. The illusion does not create sound, smell, texture, or temperature. You can move the image within the limits of the size of the effect.\n\nA viewer who interacts with the image and makes a Will save (DC 11 + caster level) sees through the illusion.\n\nSaving Throw: Will disbelief (if interacted with)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Sleep', level: 1, school: 'Enchantment',
+      castTime: '1 Round', range: 'Medium (100 ft + 10 ft/level)', duration: '1 min/level',
+      components: 'V, S, M (fine sand, rose petals, or a live cricket)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A sleep spell causes a magical slumber to come upon 4 Hit Dice of creatures. Creatures with the fewest HD are affected first. Among creatures with equal HD, those who are closest to the spell\'s point of origin are affected first.\n\nA sleeping creature is helpless. Slapping or wounding awakens an affected creature, but normal noise does not.\n\nSaving Throw: Will negates\nSpell Resistance: Yes\n\nCannot affect undead or creatures immune to mind-affecting spells.'
+    },
+    {
+      id: uid(), name: 'Summon Monster I', level: 1, school: 'Conjuration',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, F/DF (tiny bag and small candle)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell summons an extraplanar creature (typically an outsider, elemental, or magical beast native to another plane) from the Summon Monster I list. It appears where you designate and acts immediately, on your turn. It attacks your opponents to the best of its ability.\n\nThe creature summoned may include: Celestial dog, Celestial owl, Fiendish rat, Fiendish raven, or Small fire elemental (among others).\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'True Strike', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Personal', duration: 'See text',
+      components: 'V, F (copper with hole in it)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You gain temporary, intuitive insight into the immediate future during your next attack. Your next single attack roll (if it is made before the end of the next round) gains a +20 insight bonus. Additionally, you are not affected by the miss chance that applies to attackers trying to strike a concealed target.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Unseen Servant', level: 1, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level',
+      components: 'V, S, M (piece of string and bit of wood)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The unseen servant is an invisible, mindless, shapeless force that performs simple tasks at your command. It can run and fetch things, open unstuck doors, and hold chairs, as well as clean and mend. The servant can perform only one activity at a time, but it repeats the same activity over and over again if told to do so.\n\nIt has an effective Strength score of 2, cannot fight, and has AC 13 (size bonus +1, Dex +2).\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Ventriloquism', level: 1, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 min/level',
+      components: 'V, F (parchment rolled into a cone)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You can make your voice (or any sound that you can normally make vocally) seem to issue from someplace else. You can speak in any language you know. With respect to such voices and sounds, anyone who hears the sound and rolls a successful Will save recognizes it as illusory.\n\nSaving Throw: Will disbelief (if interacted with)\nSpell Resistance: No'
+    },
+
+    // ════════════════════════════════════════════════════
+    // LEVEL 2
+    // ════════════════════════════════════════════════════
+    {
+      id: uid(), name: 'Alter Self', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Personal', duration: '10 min/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You assume the form of a creature of the same type as your normal form. The new form must be within one size category of your normal size. You gain the Strength, Dexterity, and Constitution of the new form. You lose your extraordinary special attacks but retain special qualities. You keep all extraordinary special qualities of your normal form that are based on type.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Arcane Lock', level: 2, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Permanent',
+      components: 'V, S, M (gold dust worth 25 gp)', classes: 'Wizard',
+      concentration: false, ritual: false,
+      description: 'An arcane lock spell cast upon a door, chest, or portal magically locks it. You can freely pass your own arcane lock without affecting it; otherwise, a door or object secured with this spell can be opened only by breaking in or by a dispel magic or knock spell.\n\nAdd +10 to the normal DC to break open a door or portal affected by this spell.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Bear's Endurance", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Cleric, Druid, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The affected creature gains greater vitality and stamina. The spell grants the subject a +4 enhancement bonus to Constitution, which adds the usual benefits to hit points, Fortitude saves, Constitution checks, and so forth.\n\nHit points gained by a temporary increase in Constitution score are not temporary hit points. They go away when the subject's Constitution drops back to normal.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: 'Blindness/Deafness', level: 2, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: 'Permanent',
+      components: 'V', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You call upon the powers of unlife to render the subject sightless or deafness (your choice). A blind creature suffers a 50% miss chance in combat, loses its Dexterity bonus to AC, moves at half speed, and takes a –4 penalty on Search checks and most Strength- and Dexterity-based skill checks.\n\nA deafened creature takes a –4 penalty on initiative checks and a 20% chance of spell failure when casting spells with verbal components.\n\nSaving Throw: Fortitude negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Blur', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The subject's outline appears blurred, shifting, and indistinct. This distortion grants the subject concealment (20% miss chance).\n\nA see invisibility spell does not counteract the blur effect, but a true seeing spell does.\n\nOpponents that cannot see the subject ignore the spell's effect.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: "Bull's Strength", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (bull\'s hair)', classes: 'Cleric, Druid, Paladin, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The subject becomes stronger. The spell grants a +4 enhancement bonus to Strength, adding the usual benefits to melee attack rolls, melee damage rolls, and other uses of the Strength modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: "Cat's Grace", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M (pinch of cat fur)', classes: 'Bard, Druid, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The subject becomes more graceful, agile, and coordinated. The spell grants a +4 enhancement bonus to Dexterity, adding the usual benefits to AC, Reflex saves, and other uses of the Dexterity modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: 'Command Undead', level: 2, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 day/level',
+      components: 'V, S, M (cobweb and a black gemstone)', classes: 'Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell allows you some degree of control over an undead creature. Commanding an undead creature is a standard action. If the subject is intelligent, it perceives your words and actions in the most favorable way (similar to charm person).\n\nIf the subject is non-intelligent, it follows your commands to the best of its ability. Unintelligent undead get no saving throw; intelligent undead do.\n\nSaving Throw: Will negates; see text\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Continual Flame', level: 2, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Permanent',
+      components: 'V, S, M (ruby dust worth 50 gp)', classes: 'Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A flame, equivalent in brightness to a torch, springs forth from an object that you touch. The effect looks like a regular flame, but it creates no heat and doesn\'t use oxygen. A continual flame can be covered and hidden but not smothered or quenched.\n\nLight spells counter and dispel darkness spells of an equal or lower level.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Darkness', level: 2, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, M/DF (bat fur and either a drop of pitch or a piece of coal)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell causes an object to radiate shadowy illumination out to a 20-foot radius. All creatures in the area gain concealment (20% miss chance). Even creatures that can normally see in such conditions (such as with darkvision or low-light vision) have the miss chance in an area shrouded in magical darkness.\n\nDarkness counters or dispels any light spell of equal or lower level.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Darkvision', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 hour/level',
+      components: 'V, S, M (dried carrot or agate)', classes: 'Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The subject gains the ability to see 60 feet even in total darkness. Darkvision is black and white only, but it is otherwise like normal sight, and the subject can function just fine with no light at all.\n\nDarkvision can be made permanent with a permanency spell.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Daze Monster', level: 2, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 round',
+      components: 'V, S, M (a pinch of wool or similar)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell sends the target into a magical daze. The dazed subject is not stunned (so attackers get no special advantage against it), but the subject can take no actions. Creatures of 7 HD or more are not affected.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Detect Thoughts', level: 2, school: 'Divination',
+      castTime: '1 Standard Action', range: '60 ft (cone)', duration: 'Concentration, up to 1 min/level',
+      components: 'V, S, F/DF (copper piece)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'You detect surface thoughts. The amount of information revealed depends on how long you study a particular area or subject.\n\n1st round: Presence or absence of thoughts (from conscious creatures).\n2nd round: Number of thinking minds and the Intelligence score of the highest.\n3rd round: Surface thoughts of any mind in the area.\n\nCreatures can make a Will save to prevent detection; they know their thoughts are being probed.\n\nSaving Throw: Will negates; see text\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Eagle's Splendor", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (feathers or droppings from an eagle)', classes: 'Bard, Cleric, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The transmuted creature becomes more poised, articulate, and personally forceful. The spell grants a +4 enhancement bonus to Charisma, adding the usual benefits to Charisma-based skill checks and other uses of the Charisma modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: 'False Life', level: 2, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 hour/level or until discharged',
+      components: 'V, S, M (small amount of alcohol or distilled spirits)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You harness the power of unlife to grant yourself a limited ability to avoid death. While this spell is in effect, you gain temporary hit points equal to 1d10 + 1 per caster level (maximum +10).\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Flaming Sphere', level: 2, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 round/level',
+      components: 'V, S, M/DF (tallow, brimstone, and powdered iron)', classes: 'Druid, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'A burning globe of fire rolls in whichever direction you point and burns those it strikes. It moves 30 feet per round. As part of this movement, it can ascend or jump over obstacles.\n\nAny creature it strikes takes 2d6 points of fire damage. Creatures that succeed on a Reflex save take no damage. Flammable materials ignited by the sphere continue to burn.\n\nSaving Throw: Reflex negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Fog Cloud', level: 2, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '10 min/level',
+      components: 'V, S', classes: 'Druid, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A bank of fog billows out from the point you designate. The fog obscures all sight, including darkvision, beyond 5 feet. A creature within 5 feet has concealment. Creatures farther away have total concealment.\n\nA moderate wind (11+ mph) disperses the fog in 4 rounds; a strong wind (21+ mph) disperses it in 1 round. A fireball, flame strike, or similar spell burns away the fog in the spell\'s area.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Fox's Cunning", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (hairs or dung from a fox)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The transmuted creature becomes smarter. The spell grants a +4 enhancement bonus to Intelligence, adding the usual benefits to Intelligence-based skill checks and other uses of the Intelligence modifier (including bonus wizard spells and spell DCs).\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: 'Ghoul Touch', level: 2, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1d6+2 rounds',
+      components: 'V, S, M (cloth from a ghoul)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Imbuing you with negative energy, this spell allows you to paralyze a single living humanoid for the duration of the spell with a successful melee touch attack.\n\nAdditionally, the paralyzed subject exudes a carrion stench that causes all living creatures within 10 feet to become sickened (–2 penalty on attack rolls, weapon damage rolls, saving throws, skill checks, and ability checks) for the duration.\n\nSaving Throw: Fortitude negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Glitterdust', level: 2, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 round/level',
+      components: 'V, S, M (ground mica)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A cloud of golden particles covers everyone and everything in the area, causing creatures to become blinded and visibly outlining invisible things for the duration of the spell. All within the area are covered by the dust, which cannot be removed and continues to sparkle until it fades.\n\nBlinded creatures suffer a 50% miss chance in combat, lose their Dexterity bonus to AC, move at half speed, and take a –4 penalty on Search checks and most Str- and Dex-based skill checks.\n\nSaving Throw: Will negates (blindness only)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Gust of Wind', level: 2, school: 'Evocation',
+      castTime: '1 Standard Action', range: '60 ft (line)', duration: '1 round',
+      components: 'V, S', classes: 'Druid, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell creates a severe blast of air (approximately 50 mph) that originates from you, affecting all creatures in its path.\n\nA Tiny or smaller creature is knocked down and rolled 1d4×10 feet, taking 1d4 points of nonlethal damage per 10 feet. Small creatures are knocked prone, Medium creatures are unable to move forward. Large and larger creatures are unaffected.\n\nSaving Throw: Fortitude negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Hypnotic Pattern', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: 'Concentration + 2 rounds',
+      components: 'V (see text), S, M (stick of incense or chemical)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'A twisting pattern of subtle, shifting colors weaves through the air, fascinating creatures within it. Roll 2d4 and add your caster level (maximum 10) to determine the total number of HD of creatures affected.\n\nAffected creatures are fascinated—they stand or sit quietly, taking no actions other than to pay attention to the fascinating effect. Sightless creatures are not affected.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Invisibility', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Personal or Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (an eyelash encased in gum arabic)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The creature or object touched becomes invisible, vanishing from sight, even from darkvision. If the recipient is a creature carrying gear, that vanishes too. If you cast the spell on someone else, neither you nor your allies can see the subject, unless you can normally see invisible things or you employ magic to do so.\n\nItems dropped or put down by an invisible creature become visible; items picked up disappear if tucked into the clothing or pouches worn by the creature. The spell ends if the subject attacks any creature.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Knock', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: 'Instantaneous',
+      components: 'V', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The knock spell opens stuck, barred, locked, held, or arcane locked doors. It opens secret doors, as well as locked or trick-opening boxes or chests. It also loosens welds, shackles, or chains. If used to open an arcane locked door, the spell does not remove the arcane lock but simply suspends its functioning for 10 minutes.\n\nEach spell can undo as many as two means of preventing access.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Levitate', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Personal or Close', duration: '1 min/level',
+      components: 'V, S, F (a small leather loop)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Levitate allows you to move yourself, another creature, or an object up and down as you wish. A creature must be willing to be levitated, and an object must be unattended or possessed by a willing creature. You can mentally direct the recipient to move up or down as much as 20 feet each round.\n\nYou cannot move the recipient horizontally, but the recipient could clamber along the face of a cliff.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Locate Object', level: 2, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: '1 min/level',
+      components: 'V, S, F/DF (forked twig)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You sense the direction of a well-known or clearly visualized object. You can search for general items, in which case you locate the nearest one of its type if more than one is within range. Attempting to find a specific item requires a specific, detailed mental image.\n\nThe spell is blocked by even a thin sheet of lead.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Melf's Acid Arrow", level: 2, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: 'Instantaneous',
+      components: 'V, S, M (rhubarb leaf and adder stomach), F (dart)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A magical arrow of acid springs from your hand and speeds to its target. You must succeed on a ranged touch attack to hit your target. The arrow deals 2d4 points of acid damage with no splash damage. For every three caster levels you possess, the acid, unless neutralized, lasts for another round, dealing another 2d4 points of damage in that round.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Minor Image', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: 'Concentration + 2 rounds',
+      components: 'V, S, F (bit of fleece)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'This spell functions like silent image, except that minor image includes some minor sounds but not understandable speech.\n\nSaving Throw: Will disbelief (if interacted with)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Mirror Image', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Several illusory duplicates of you pop into being, making it difficult for enemies to know which target to attack. The figments stay near you and disappear when struck.\n\nYou create 1d4 images, plus one image per three caster levels (maximum eight images total). At the beginning of each of your turns, roll to see if an attacker hits a mirror image (chance = number of images ÷ total targets).\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Misdirection', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'By means of this spell, you misdirect the information from divination spells that reveal auras (detect evil, detect magic, discern lies, and the like). On casting the spell, you choose another object within range. For the duration of the spell, the subject of misdirection is detected as if it were the other object.\n\nSaving Throw: Will negates\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Owl's Wisdom", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (feathers or droppings from an owl)', classes: 'Cleric, Druid, Paladin, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The transmuted creature becomes wiser. The spell grants a +4 enhancement bonus to Wisdom, adding the usual benefits to Wisdom-based skill checks and other uses of the Wisdom modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: 'Protection from Arrows', level: 2, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 hour/level or until discharged',
+      components: 'V, S, F (a piece of shell)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The warded creature gains resistance to ranged weapons. The subject gains damage reduction 10/magic against ranged weapons. Once the spell has prevented a total of 10 points of damage per caster level (maximum 100 points), it is discharged.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Pyrotechnics', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: 'See text',
+      components: 'V, S, M (one fire source)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Pyrotechnics turns a fire into either a burst of blinding fireworks or a thick cloud of choking smoke, depending on your choice.\n\nFireworks: The fire mounts 5 feet per caster level as a blindingly bright cascade of sizzling sparks. This effect lasts 1d4+1 rounds and blinds all creatures within 120 feet.\n\nSmoky cloud: Creatures within 20 feet become nauseated. The smoke obscures all sight as a fog cloud for 1d4+1 rounds.\n\nSaving Throw: Will or Fortitude negates; see text\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Resist Energy', level: 2, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S, DF', classes: 'Cleric, Druid, Fire Domain, Paladin, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This abjuration grants a creature limited protection from damage of whichever one of five energy types you select: acid, cold, electricity, fire, or sonic. The subject gains energy resistance 10 against the energy type chosen, meaning that each time the creature is subjected to such damage, that damage is reduced by 10 points before being applied to the hit points.\n\nAt caster level 7th, energy resistance increases to 20. At 11th level, it increases to 30.\n\nSaving Throw: Fortitude negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Rope Trick', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 hour/level',
+      components: 'V, S, M (powdered corn extract and a twisted loop of parchment)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'When this spell is cast upon a piece of rope from 5 to 30 feet long, one end of the rope rises into the air until the whole rope hangs perpendicular, as if affixed at the top. The upper end is invisible. The space at the top of the rope is extradimensional, able to hold up to eight Medium creatures.\n\nSpells cannot be cast across the extradimensional interface, nor can area effects cross it.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Scare', level: 2, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1d4 rounds',
+      components: 'V, S, M (bone chip from undead)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell functions like cause fear, except that it causes all subjects within range to become frightened. Panicked creatures flee at top speed. If cornered, a panicked creature cowers.\n\nAffects up to 5 HD of creatures. Creatures with 6 or more Hit Dice are not affected.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Scorching Ray', level: 2, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You blast your enemies with fiery rays. You may fire one ray, plus one additional ray for every four levels beyond 3rd (to a maximum of three rays at 11th level). Each ray requires a ranged touch attack to hit and deals 4d6 points of fire damage.\n\nThe rays may be fired at the same or different targets, but all rays must be aimed at targets within 30 feet of each other and fired simultaneously.\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'See Invisibility', level: 2, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Personal', duration: '10 min/level',
+      components: 'V, S, M (talc and powdered silver)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You can see any objects or beings that are invisible within your range of vision, as well as any that are ethereal, as if they were normally visible. Such creatures are visible to you as translucent shapes, allowing you easily to discern the difference between visible, invisible, and ethereal creatures.\n\nSee invisibility does not reveal the method used to obtain invisibility.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Shatter', level: 2, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: 'Instantaneous',
+      components: 'V, S, M/DF (chip of mica)', classes: 'Bard, Chaos Domain, Cleric, Destruction Domain, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Shatter creates a loud, ringing noise that breaks brittle, nonmagical objects; sunders a single solid, nonmagical object; or damages a crystalline creature.\n\nUsed as an area attack, the spell affects all unattended, nonmagical objects of crystal, glass, ceramic, or porcelain within a 5-foot-radius burst.\n\nUsed against a single, unattended object, the spell can affect objects of up to 10 pounds per caster level.\n\nAgainst crystalline creatures: 1d6 sonic damage per caster level (max 10d6). Fortitude save for half.\n\nSaving Throw: Will negates (object); Fortitude half (crystalline creature)\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Spectral Hand', level: 2, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 min/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A ghostly, glowing hand shaped from your life force materializes and moves as you desire, allowing you to deliver low-level, touch range spells at a distance. The hand attacks as many times as you desire, but no more than once per round.\n\nDelivering a touch spell requires a successful melee touch attack. The hand gains a bonus on this attack roll equal to your caster level + your Int modifier.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Spider Climb', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S, M (a drop of bitumen and a live spider)', classes: 'Druid, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The subject can climb and travel on vertical surfaces or even traverse ceilings as well as a spider does. The affected creature must have its hands free to climb in this manner. The subject gains a climb speed of 20 feet; furthermore, it need not make Climb checks to traverse a vertical or horizontal surface (even upside down). A spider climbing creature retains its Dexterity bonus to Armor Class (if any) while climbing.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Summon Monster II', level: 2, school: 'Conjuration',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, F/DF (tiny bag and small candle)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell summons an extraplanar creature from the Summon Monster II list. It appears where you designate and acts immediately, on your turn.\n\nSummon Monster II list includes: Celestial or fiendish versions of wolf, eagle, riding dog, and others. Can also summon one creature from the Summon Monster I list.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Touch of Idiocy', level: 2, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'With a touch, you reduce the target\'s mental faculties. The subject takes 1d6 points of Intelligence damage, 1d6 points of Wisdom damage, and 1d6 points of Charisma damage.\n\nThe subject\'s Intelligence, Wisdom, and Charisma scores cannot be reduced to less than 1. No saving throw is allowed against this effect.\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Web', level: 2, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '10 min/level',
+      components: 'V, S, M (bit of spider web)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Web creates a many-layered mass of strong, sticky strands that fills a volume 20 ft across. These strands trap those caught in them. The strands are anchored to two or more solid and diametrically opposed points.\n\nAny creature touching the web must make a Reflex save or become entangled (–2 attack, –4 Dex). Entangled creatures can break free with a DC 20 Strength check or escape artist check each round.\n\nSaving Throw: Reflex negates; see text\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Whispering Wind', level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: '1 mile/level', duration: 'No more than 1 hour/level or until discharge',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You send a message or sound on the wind to a designated spot. The whispering wind travels to a specific location within range that is familiar to you. The wind carries your message to that spot, where it whispers. The message is no more than 25 words long, or it may be a sound that you have heard.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+
+    // ════════════════════════════════════════════════════
+    // LEVEL 3
+    // ════════════════════════════════════════════════════
+    {
+      id: uid(), name: 'Arcane Sight', level: 3, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell makes your eyes glow blue and allows you to see magical auras within 120 feet of you. The information you can determine depends on how long you study a particular area or subject.\n\n1st round: Presence or absence of magical auras.\n2nd round: Number of different magical auras and the power of the most potent.\n3rd round: School of magic and power level of each aura.\n\nIf you concentrate on a specific creature within 120 feet, you can determine whether it has any spellcasting or spell-like abilities and the strength of the most powerful spell or spell-like ability.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Blink', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 round/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You "blink" quickly back and forth between the Material Plane and the Ethereal Plane and are only partly visible and present at any given time.\n\nYou have a 50% chance to avoid any attack (magic or otherwise) on each round, as if you had total concealment. Any attack that misses you has a 50% chance of striking the ethereal form instead.\n\nYou can attack normally, and your attacks have a 20% chance to miss due to the blink effect. You are also harder to detect.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Clairaudience/Clairvoyance', level: 3, school: 'Divination',
+      castTime: '10 Minutes', range: 'Long (400 ft + 40 ft/level)', duration: '1 min/level',
+      components: 'V, S, F (a small horn for hearing / a glass eye for seeing)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'You create an invisible magical sensor at a specific location that enables you to hear or see (your choice) almost as if you were there. You don\'t need line of sight or line of effect to create the sensor in a desired location.\n\nThe sensor can be dispelled. Lead sheeting or magical protection blocks the spell. The spell functions only on the plane of existence you are currently occupying.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Daylight', level: 3, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S', classes: 'Bard, Cleric, Druid, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The object touched sheds light as bright as full daylight in a 60-foot radius, and dim light for an additional 60 feet beyond that. Creatures that take penalties in bright light also take them while within the radius of this magical light.\n\nDaylight brought into an area of magical darkness (or vice versa) is temporarily negated, so that the otherwise prevailing light conditions exist in the overlap area.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Deep Slumber', level: 3, school: 'Enchantment',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 min/level',
+      components: 'V, S, M (fine sand, rose petals, or a live cricket)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell functions like sleep, except that it affects 10 HD of creatures.\n\nSleeping creatures are helpless and cannot take actions. Slapping or wounding awakens an affected creature, but normal noise does not.\n\nSaving Throw: Will negates\nSpell Resistance: Yes\n\nCannot affect undead or creatures immune to mind-affecting spells.'
+    },
+    {
+      id: uid(), name: 'Displacement', level: 3, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 round/level',
+      components: 'V, M (small loop of leather)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The subject of this spell appears to be about 2 feet away from its true location. The creature benefits from a 50% miss chance as if it had total concealment.\n\nUnlike actual total concealment, displacement does not prevent enemies from targeting the creature normally. True seeing reveals the creature\'s true location and negates the miss chance.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Explosive Runes', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Permanent until discharged',
+      components: 'V, S', classes: 'Wizard',
+      concentration: false, ritual: false,
+      description: 'You trace these mystic runes upon a book, map, scroll, or similar object bearing written information. The runes detonate when read, dealing 6d6 points of force damage.\n\nAnyone else who reads the runes triggers the explosion; you and any characters you specifically designate when casting the spell are not affected. The item bearing the runes also takes damage.\n\nSaving Throw: Reflex half; see text\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Fireball', level: 3, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: 'Instantaneous',
+      components: 'V, S, M (ball of bat guano and sulphur)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A fireball spell is an explosion of flame that detonates with a low roar and deals 1d6 points of fire damage per caster level (maximum 10d6) to every creature within the area. Unattended objects also take this damage.\n\nThe explosion creates almost no pressure. You point your finger and determine the range (distance and height) at which the fireball is to burst. A glowing, pea-sized bead streaks from the pointing digit and, unless it impacts upon a material body or solid barrier prior to attaining the prescribed range, blossoms into the fireball at that point.\n\nSaving Throw: Reflex half\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Flame Arrow', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '10 min/level',
+      components: 'V, S, M (dung and embers)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You turn ammunition (such as arrows, bolts, shuriken, and stones) into fiery projectiles. Each piece of ammunition deals an extra 1d6 points of fire damage to any target it hits.\n\nA flaming projectile can easily ignite a flammable object or structure, but it won\'t ignite a creature unless the creature has a special vulnerability to fire.\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Fly', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, F (wing feather from any bird)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The subject can fly at a speed of 60 feet (or 40 feet if it wears medium or heavy armor, or if it carries a medium or heavy load). It can ascend at half speed and descend at double speed, and its maneuverability is good.\n\nUsing a fly spell requires only as much concentration as walking, so the subject can attack or cast spells normally.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Gaseous Form', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '2 min/level',
+      components: 'S, M/DF (gauze and smoke)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The subject and all its gear become insubstantial, misty, and translucent. Its material armor (including natural armor) becomes worthless, though its size, Dexterity, deflection bonuses, and armor bonuses from force effects still apply. The subject gains damage reduction 10/magic and becomes immune to poison and critical hits.\n\nIt can\'t attack or cast spells with material components while gaseous. It flies at speed 10 (perfect maneuverability) and can pass through small holes or narrow openings.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Gentle Repose', level: 3, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 day/level',
+      components: 'V, S, M/DF (salt and copper coin for each eye)', classes: 'Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You preserve the remains of a dead creature so that they do not decay. Doing so effectively extends the time limit on raising that creature from the dead. Days spent under the influence of this spell don\'t count against the time limit for spells such as raise dead.\n\nThis spell also works on severed body parts and the like.\n\nSaving Throw: Will negates (object)\nSpell Resistance: Yes (object)'
+    },
+    {
+      id: uid(), name: 'Halt Undead', level: 3, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, M (dust from a crushed zombie)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell renders as many as three undead creatures immobile. A nonintelligent undead creature gets no saving throw; an intelligent undead creature does. If the spell is successful, it renders the undead creature immobile for the duration of the spell (similar to the effect of hold person on a living creature).\n\nSaving Throw: Will negates (intelligent undead only)\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Haste', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, M (shaving of licorice root)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The transmuted creatures move and act more quickly than normal. This extra speed has several effects:\n\n• One extra attack per round (at highest base attack bonus) when using a full attack action.\n• +1 bonus on attack rolls and a +1 dodge bonus to AC and Reflex saves.\n• All of the hasted creature\'s modes of movement increase by 30 feet, to a maximum of twice the subject\'s normal speed using that form of movement.\n\nHaste dispels and counters slow.\n\nSaving Throw: Fortitude negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Heroism', level: 3, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell imbues a single creature with great bravery and morale in battle. The spell grants the subject a +2 morale bonus on attack rolls, saves, and skill checks.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Hold Person', level: 3, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 round/level',
+      components: 'V, S, F/DF (small, straight piece of iron)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The subject becomes paralyzed and freezes in place. It is aware and breathes normally but cannot take any actions, even speech. Each round on its turn, the subject may attempt a new saving throw to end the effect. (This is a full-round action that does not provoke attacks of opportunity.)\n\nA winged creature who is held cannot flap its wings and falls. A swimmer can\'t swim and may drown.\n\nSaving Throw: Will negates; see text\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Invisibility Sphere', level: 3, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S, M (an eyelash encased in gum arabic)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell functions like invisibility, except that this spell confers invisibility upon all creatures within 10 feet of the recipient. The center of the effect is mobile with the recipient.\n\nThose affected by this spell can see each other and themselves as if unaffected by the spell. Any affected creature moving out of the area becomes visible, but creatures moving into the area after the spell is cast do not become invisible.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Keen Edge', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '10 min/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell makes a slashing or piercing weapon more effective. The spell doubles the threat range of the weapon. A threat range of 20 becomes 19–20, a threat range of 19–20 becomes 17–20, and a threat range of 18–20 becomes 15–20.\n\nThis effect doesn\'t stack with any other effect that expands the threat range of a weapon (such as the Improved Critical feat).\n\nSaving Throw: Will negates (harmless, object)\nSpell Resistance: Yes (harmless, object)'
+    },
+    {
+      id: uid(), name: 'Lightning Bolt', level: 3, school: 'Evocation',
+      castTime: '1 Standard Action', range: '120 ft (line)', duration: 'Instantaneous',
+      components: 'V, S, M (bit of fur, rod of amber, crystal, or glass)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You release a powerful stroke of electrical energy that deals 1d6 points of electricity damage per caster level (maximum 10d6) to each creature within its area. The bolt begins at your fingertips.\n\nThe lightning bolt sets fire to combustibles and damages objects in its path. It can melt metals with a low melting point.\n\nIf the damage caused to an interposing barrier shatters or breaks through it, the bolt may continue beyond the barrier.\n\nSaving Throw: Reflex half\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Magic Circle against Evil', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S, M/DF (silver powder)', classes: 'Cleric, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell functions like protection from evil, except that it is 10 feet in radius emanating from the touched creature and lasts longer.\n\nThe barrier blocks any attempt to possess or exercise mental control over the warded creatures. Second, the barrier keeps summoned creatures at bay.\n\nAlso available as Magic Circle against Chaos, Magic Circle against Good, and Magic Circle against Law.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No; see text'
+    },
+    {
+      id: uid(), name: 'Major Image', level: 3, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: 'Concentration + 3 rounds',
+      components: 'V, S, F (bit of fleece)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'This spell functions like silent image, except that sound, smell, and thermal illusions are included in the illusion. While concentrating, you can move the image within the range.\n\nThe image can include intelligible speech if you wish.\n\nSaving Throw: Will disbelief (if interacted with)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Nondetection', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 hour/level',
+      components: 'V, S, M (diamond dust worth 50 gp)', classes: 'Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The warded creature or object becomes difficult to detect by divination spells such as clairaudience/clairvoyance, locate object, and detect spells. If a divination is attempted against the warded creature or item, the caster of the divination must succeed on a caster level check (1d20 + caster level) against a DC of 11 + the caster level of the nondetection.\n\nSaving Throw: Will negates (harmless, object)\nSpell Resistance: Yes (harmless, object)'
+    },
+    {
+      id: uid(), name: 'Phantom Steed', level: 3, school: 'Conjuration',
+      castTime: '10 Minutes', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You conjure a Large, quasi-real, horse-like creature. The steed can be ridden only by you or by the one person for whom you specifically created the mount. A phantom steed has a black head and body, gray mane and tail, and smoke-colored, insubstantial hooves that make no sound.\n\nIt has 7 + caster level hit points and speed of 20 feet per two caster levels (maximum 100 feet). At higher caster levels it gains the ability to walk on water, then clouds, and eventually other planes.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Protection from Energy', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level or until discharged',
+      components: 'V, S, DF', classes: 'Cleric, Druid, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Protection from energy grants temporary immunity to the type of energy you specify when you cast it (acid, cold, electricity, fire, or sonic). When the spell absorbs 12 points per caster level of energy damage (to a maximum of 120 points), it is discharged.\n\nProtection from energy overlaps (and does not stack with) resist energy. If a character is warded by both, the protection from energy spell absorbs damage first.\n\nSaving Throw: Fortitude negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Rage', level: 3, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: 'Concentration + 1 round/level',
+      components: 'V, S', classes: 'Bard, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: 'Each affected creature gains a +2 morale bonus to Strength and Constitution, a +1 morale bonus on Will saves, and a –2 penalty to AC. The effect is otherwise identical with a barbarian\'s rage except that the subjects aren\'t fatigued at the end of the rage.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Ray of Exhaustion', level: 3, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 min/level',
+      components: 'V, S, M (drop of sweat)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'A black ray projects from your pointing finger. You must succeed on a ranged touch attack with the ray to strike a target.\n\nThe subject is immediately exhausted for the duration of the spell. An exhausted character can run or charge at only half speed, and takes a –6 penalty to Strength and Dexterity.\n\nA fatigued creature hit by this spell is exhausted instead.\n\nSaving Throw: Fortitude partial\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Secret Page', level: 3, school: 'Transmutation',
+      castTime: '10 Minutes', range: 'Touch', duration: 'Permanent',
+      components: 'V, S, M (powdered herring scales)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Secret page alters the contents of a page so that they appear to be something entirely different. The original script is altered to hide its true content. A comprehend languages spell cannot decode a secret page; it remains unintelligible. A casting of read magic allows the caster to realize that the page is a secret page.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Sepia Snake Sigil', level: 3, school: 'Conjuration',
+      castTime: '10 Minutes', range: 'Touch', duration: 'Permanent or until discharged',
+      components: 'V, S, M (100 gp of powdered amber, snake scale, sigil)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'When you cast sepia snake sigil, a small symbol appears in the text of one written work such as a book, map, or scroll. The sepia snake sigil is triggered when a reader looks at the symbol.\n\nAny creature triggering the sigil must succeed on a Reflex save or be engulfed in a shimmering amber field of force, frozen in place and unable to act for 1d4 days + 1 day per caster level.\n\nSaving Throw: Reflex negates\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Shrink Item', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 day/level',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You are able to shrink one nonmagical item to 1/16 of its normal size in each dimension (to about 1/4,096 the original volume and mass). Cloth or soft items can be folded so that they take up even less space. You can also shrink a nonmagical fire.\n\nThe item can be returned to its normal size just by speaking a command word.\n\nSaving Throw: Will negates (object)\nSpell Resistance: Yes (object)'
+    },
+    {
+      id: uid(), name: 'Sleet Storm', level: 3, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: '1 round/level',
+      components: 'V, S, M/DF (dust and water)', classes: 'Druid, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Driving sleet blocks all sight (even darkvision) within it and causes the ground in the area to be icy. A creature can walk within or through the area of sleet at half normal speed with a DC 10 Balance check. Failure means it can\'t move in that round, while failure by 5 or more means it falls.\n\nThe sleet extinguishes torches and small fires.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Slow', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, M (a drop of molasses)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'An affected creature moves and attacks at a drastically slowed rate. A slowed creature can take only a single move action or standard action each turn, not both (nor may it take full-round actions). Additionally, it takes a –1 penalty on attack rolls, AC, and Reflex saves. A slowed creature moves at half its normal speed (round down to the next 5-foot increment).\n\nSlow counters and dispels haste.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Stinking Cloud', level: 3, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 round/level',
+      components: 'V, S, M (rotton egg / cabbage leaves)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'Stinking cloud creates a bank of fog like that created by fog cloud, except that the vapors are nauseating. Living creatures in the cloud become nauseated. This condition lasts as long as the creature is in the cloud and for 1d4+1 rounds after it leaves.\n\nA moderate wind (11+ mph) disperses the fog in 4 rounds; a strong wind (21+ mph) disperses it in 1 round.\n\nSaving Throw: Fortitude negates\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Suggestion', level: 3, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level or until completed',
+      components: 'V, M (snake\'s tongue and honeycomb)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You influence the actions of the target creature by suggesting a course of activity (limited to a sentence or two). The suggestion must be worded in such a manner as to make the activity sound reasonable. The target must be able to understand you.\n\nThe suggested course of activity can continue for the entire duration. If the suggested activity can be completed in a shorter time, the spell ends when the subject finishes what it was asked to do.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Summon Monster III', level: 3, school: 'Conjuration',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, F/DF (tiny bag and small candle)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell summons an extraplanar creature from the Summon Monster III list. It appears where you designate and acts immediately, on your turn.\n\nIncludes: Celestial/fiendish black bear, Celestial/fiendish dire rat, Small earth elemental, and others. Can also summon one creature from the Summon Monster I or II lists.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Leomund's Tiny Hut", level: 3, school: 'Evocation',
+      castTime: '1 Standard Action', range: '20 ft (hemisphere)', duration: '2 hours/level',
+      components: 'V, S, M (small crystal bead)', classes: 'Wizard',
+      concentration: false, ritual: false,
+      description: 'You create an unmoving, opaque sphere of force of any color you desire around yourself. Half the sphere projects above the ground, and the lower hemisphere passes through the ground. Up to nine other Medium creatures can fit into the field with you.\n\nThe temperature inside the hut is 70 degrees F. The hut is opaque from outside but transparent from within. Magical fire and cold cannot affect the hut, and the spell has no effect on spells cast into, out of, or through the hut.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Tongues', level: 3, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, M/DF (clay model of ziggurat)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell grants the creature touched the ability to speak and understand the language of any intelligent creature, whether it is a racial tongue or a regional dialect. The subject can speak only one language at a time, although it may be able to understand several languages.\n\nTongues does not enable the subject to speak with creatures who don\'t speak.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Vampiric Touch', level: 3, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Instantaneous/1 hour (see text)',
+      components: 'V, S', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You must succeed on a melee touch attack. Your touch deals 1d6 points of damage per two caster levels (maximum 10d6). You gain temporary hit points equal to the damage you deal. You can\'t gain more than the subject\'s current hit points + the subject\'s Constitution score. The temporary hit points disappear 1 hour later.\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Water Breathing', level: 3, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '2 hours/level; see text',
+      components: 'V, S, M/DF (short reed or piece of straw)', classes: 'Cleric, Druid, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'The transmuted creatures can breathe water freely. Divide the duration evenly among all the creatures you touch. The spell does not make creatures unable to breathe air.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Wind Wall', level: 3, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 round/level',
+      components: 'V, S, M/DF (tiny fan and exotic feather)', classes: 'Air Domain, Cleric, Druid, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'An invisible vertical curtain of wind appears. It is 2 feet thick and of considerable strength. The wall keeps out gases, wind-driven rain, and similar threats. Small flying creatures cannot pass through the wall, and medium ones must succeed on a DC 25 Fly check. Arrows and other normal ranged weapons are deflected upward and miss.\n\nGaseous breath weapons and gases cannot pass through the wall.\n\nSaving Throw: None; see text\nSpell Resistance: Yes'
+    },
+  ];
+}
+
+// ── Init ───────────────────────────────────────────────
+loadState();
+buildLevelGrid();
+updateOrb();
+renderLog();
+renderTable();
+</script>
+</body>
+</html>
