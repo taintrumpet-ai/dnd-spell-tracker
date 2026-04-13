@@ -677,33 +677,40 @@
       background: var(--surface);
       border-top: 1px solid var(--border);
       z-index: 150;
-      height: 60px;
+      height: 70px;
     }
 
-    .tab-bar-inner { display: flex; height: 100%; }
+    .tab-bar-inner {
+      display: flex;
+      height: 100%;
+      justify-content: space-around;
+      align-items: stretch;
+    }
 
     .tab-btn {
       flex: 1;
       background: transparent;
       border: none;
+      border-top: 2px solid transparent;
       color: var(--text-dim);
       font-family: inherit;
-      font-size: 0.65rem;
-      letter-spacing: 0.5px;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
       text-transform: uppercase;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 6px;
       cursor: pointer;
-      transition: color 0.15s;
-      padding: 8px 0;
+      transition: color 0.15s, border-color 0.15s;
+      padding: 10px 0;
       -webkit-tap-highlight-color: transparent;
+      max-width: 120px;
     }
 
-    .tab-btn .tab-icon { font-size: 1.3rem; line-height: 1; }
-    .tab-btn.active { color: var(--gold-light); }
+    .tab-btn .tab-icon { font-size: 1.5rem; line-height: 1; }
+    .tab-btn.active { color: var(--gold-light); border-top-color: var(--gold); }
     .tab-btn.active .tab-icon { filter: drop-shadow(0 0 6px var(--gold)); }
 
     /* ── Spell Cards (mobile) ─────────────────────────── */
@@ -765,7 +772,7 @@
 
       .layout {
         grid-template-columns: 1fr;
-        padding: 12px 12px 72px;
+        padding: 12px 12px 82px;
         gap: 0;
       }
 
