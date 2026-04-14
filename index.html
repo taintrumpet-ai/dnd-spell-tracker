@@ -3025,12 +3025,37 @@ function togglePrepare(spellId) {
 function toggleCast(spellId) {
   const entry = prepared.find(p => p.spellId === spellId);
   if (!entry) return;
-  entry.cast = !entry.cast;
   const s = spells.find(x => x.id === spellId);
-  if (s) toast(entry.cast ? `"${s.name}" marked as cast.` : `"${s.name}" restored.`, entry.cast ? 'arcane' : 'success');
+  entry.cast = !entry.cast;
+
+  if (entry.cast && s) {
+    // Casting — deduct spell points and log to sheet
+    const cost = SPELL_COSTS[s.level] ?? 0;
+    if (cost > 0) {
+      if (spCurrent < cost) {
+        toast(`Not enough spell points to cast "${s.name}"! (need ${cost})`, 'warn');
+        entry.cast = false;
+        return;
+      }
+      spCurrent -= cost;
+      addLog(`Cast "${s.name}" (−${cost} pts)`, -cost);
+      updateOrb();
+    }
+    toast(`"${s.name}" cast!`, 'arcane');
+    logToSheet(`Cast Prepared Spell (Level ${s.level})`, s.name, -cost);
+  } else if (s) {
+    // Restoring — refund points
+    const cost = SPELL_COSTS[s.level] ?? 0;
+    if (cost > 0) {
+      spCurrent = Math.min(spMax, spCurrent + cost);
+      addLog(`Restored "${s.name}" (+${cost} pts)`, cost);
+      updateOrb();
+    }
+    toast(`"${s.name}" restored.`, 'success');
+  }
+
   saveState();
   renderPrepared();
-  if (s && entry.cast) logToSheet('Prepared Spell Cast', s.name, 0);
 }
 
 function restPrepared() {
