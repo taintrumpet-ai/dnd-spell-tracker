@@ -1983,6 +1983,43 @@ function defaultSpells() {
       description: 'This spell summons a natural creature from the Summon Nature\'s Ally I list. It appears where you designate and acts immediately on your turn, attacking your opponents to the best of its ability.\n\nCommon summons include: black bear cub (as dire rat stats), eagle, Medium shark, Small snake, or wolf. The creature serves you for the spell\'s duration.\n\nSaving Throw: None\nSpell Resistance: No'
     },
 
+    // ── Spell Compendium additions — Level 1 Ranger ──────
+    {
+      id: uid(), name: 'Exacting Shot', level: 1, school: 'Divination',
+      castTime: '1 Swift Action', range: 'Personal', duration: '1 round',
+      components: 'V', classes: 'Ranger',
+      concentration: false, ritual: false,
+      description: 'Your next ranged attack this round ignores the miss chance granted by concealment (but not total concealment). The attack must be made before the end of your turn.\n\nThis is a swift action, so it does not disrupt other actions taken on the same turn.\n\nSaving Throw: None\nSpell Resistance: No\n\nSource: Spell Compendium'
+    },
+    {
+      id: uid(), name: 'Guided Arrow', level: 1, school: 'Divination',
+      castTime: '1 Swift Action', range: 'Personal', duration: '1 round',
+      components: 'V', classes: 'Ranger',
+      concentration: false, ritual: false,
+      description: "You receive a +5 insight bonus on your next single ranged attack roll made before the end of your turn. The bonus applies only to the first attack you make after casting this spell.\n\nThis is a swift action and does not interfere with other actions on the same turn.\n\nSaving Throw: None\nSpell Resistance: No\n\nSource: Spell Compendium"
+    },
+    {
+      id: uid(), name: 'Hawkeye', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 hour/level',
+      components: 'V, S', classes: 'Ranger',
+      concentration: false, ritual: false,
+      description: 'Your vision becomes preternaturally sharp. You gain a +5 competence bonus on Spot checks and the range increment of any ranged weapon you use is increased by 50%.\n\nFor example, a longbow normally has a range increment of 100 ft — while Hawkeye is active it becomes 150 ft.\n\nSaving Throw: None\nSpell Resistance: No\n\nSource: Spell Compendium'
+    },
+    {
+      id: uid(), name: "Rhino's Rush", level: 1, school: 'Transmutation',
+      castTime: '1 Swift Action', range: 'Personal', duration: 'Instantaneous',
+      components: 'V', classes: 'Ranger',
+      concentration: false, ritual: false,
+      description: "The next melee attack you make this round deals double damage, as if you were charging. This benefit applies only to the first melee attack you make before the end of your turn.\n\nUnlike an actual charge, Rhino's Rush does not require you to move — you may be standing still and still gain the double-damage effect.\n\nSaving Throw: None\nSpell Resistance: No\n\nSource: Spell Compendium"
+    },
+    {
+      id: uid(), name: 'Ride of the Valenar', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S', classes: 'Ranger',
+      concentration: false, ritual: false,
+      description: 'You are briefly suffused with the legendary riding skill of the Valenar elves. You gain a +10 competence bonus on all Ride checks for the duration of the spell.\n\nThis bonus applies to all Ride skill checks including staying in the saddle, fighting from horseback, fast mounting, and guiding with knees.\n\nSaving Throw: None\nSpell Resistance: No\n\nSource: Spell Compendium'
+    },
+
     // ════════════════════════════════════════════════════
     // LEVEL 1
     // ════════════════════════════════════════════════════
@@ -2585,6 +2622,13 @@ function defaultSpells() {
       components: 'V, S, M (a drop of bitumen and a live spider)', classes: 'Druid, Sorcerer, Wizard',
       concentration: false, ritual: false,
       description: 'The subject can climb and travel on vertical surfaces or even traverse ceilings as well as a spider does. The affected creature must have its hands free to climb in this manner. The subject gains a climb speed of 20 feet; furthermore, it need not make Climb checks to traverse a vertical or horizontal surface (even upside down). A spider climbing creature retains its Dexterity bonus to Armor Class (if any) while climbing.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Swift Haste', level: 2, school: 'Transmutation',
+      castTime: '1 Swift Action', range: 'Personal', duration: '1 round',
+      components: 'V', classes: 'Ranger',
+      concentration: false, ritual: false,
+      description: "A lesser but instantaneous version of the haste spell, swift haste grants you one additional attack at your highest base attack bonus when you take a full attack action this round.\n\nUnlike haste, swift haste does not grant a bonus to speed, AC, attack rolls, or Reflex saves — it provides only the extra attack. Because it is a swift action, it can be cast in the same round as a full attack.\n\nSaving Throw: None\nSpell Resistance: No\n\nSource: Spell Compendium"
     },
     {
       id: uid(), name: 'Summon Monster II', level: 2, school: 'Conjuration',
