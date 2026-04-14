@@ -1367,6 +1367,7 @@ function logToSheet(action, spellName, pointsDelta) {
   };
   fetch(SHEET_URL, {
     method:  'POST',
+    mode:    'no-cors', // required — Apps Script doesn't handle CORS preflight
     headers: { 'Content-Type': 'text/plain' },
     body:    JSON.stringify(payload)
   }).catch(() => {}); // Silent fail — never interrupts gameplay
