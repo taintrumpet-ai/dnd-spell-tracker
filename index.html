@@ -76,16 +76,17 @@
     }
 
     .header-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--arcane) 0%, #3a2570 100%);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      box-shadow: 0 0 16px var(--arcane-glow);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      overflow: hidden;
       flex-shrink: 0;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    }
+    .header-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     header h1 {
@@ -1024,7 +1025,7 @@
 
 <!-- Header -->
 <header>
-  <div class="header-icon">✦</div>
+  <div class="header-icon"><img src="icon-192.png" alt="Arcane Ledger" /></div>
   <div>
     <h1><span>Arcane</span> Ledger</h1>
   </div>
