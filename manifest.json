@@ -4,8 +4,8 @@
   "description": "D&D 3.5e Spell Point Tracker & Spell Repository",
   "start_url": "/dnd-spell-tracker/",
   "display": "standalone",
-  "background_color": "#0d0d14",
-  "theme_color": "#0d0d14",
+  "background_color": "#0d0905",
+  "theme_color": "#0d0905",
   "orientation": "portrait-primary",
   "icons": [
     {

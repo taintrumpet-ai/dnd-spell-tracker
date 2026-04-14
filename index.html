@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0d0d14" />
+  <meta name="theme-color" content="#0d0905" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Arcane Ledger" />
@@ -18,25 +18,25 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:         #080810;
-      --surface:    #0f0f1a;
-      --surface2:   #161625;
-      --surface3:   #1d1d30;
-      --border:     #252540;
-      --border-l:   #32325a;
+      --bg:         #0d0905;
+      --surface:    #150d07;
+      --surface2:   #1d1209;
+      --surface3:   #26180c;
+      --border:     #382010;
+      --border-l:   #4e2e18;
       --gold:       #c9a84c;
       --gold-light: #e8c96e;
       --gold-dim:   #6a5828;
       --gold-glow:  rgba(201,168,76,0.18);
-      --crimson:    #8b1e30;
-      --crimson-l:  #d44060;
-      --arcane:     #5c3d9e;
-      --arcane-l:   #9b7ee0;
-      --arcane-glow:rgba(92,61,158,0.22);
-      --text:       #c8c3bc;
-      --text-dim:   #5e5a6e;
-      --text-muted: #888098;
-      --text-head:  #ede8e0;
+      --crimson:    #821c28;
+      --crimson-l:  #c83448;
+      --arcane:     #7c2e10;
+      --arcane-l:   #d4824a;
+      --arcane-glow:rgba(180,90,30,0.22);
+      --text:       #c8bfb0;
+      --text-dim:   #5e4e3a;
+      --text-muted: #8a7860;
+      --text-head:  #ede0cc;
       --green:      #2d6e40;
       --green-l:    #55c47a;
       --radius:     10px;
@@ -388,10 +388,10 @@
     .search-bar select:focus { outline: none; border-color: var(--arcane-l); }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--arcane) 0%, #3e2880 100%);
-      border: 1px solid rgba(155,126,224,0.3);
+      background: linear-gradient(135deg, var(--arcane) 0%, #5c1e08 100%);
+      border: 1px solid rgba(212,130,74,0.35);
       border-radius: var(--radius-sm);
-      color: #d8ccf8;
+      color: #f0d0b0;
       padding: 9px 18px;
       cursor: pointer;
       font-size: 0.85rem;
@@ -458,7 +458,7 @@
       white-space: nowrap;
     }
 
-    .badge-level { background: rgba(92,61,158,0.25); color: var(--arcane-l); border: 1px solid rgba(92,61,158,0.5); }
+    .badge-level { background: rgba(124,46,16,0.30); color: var(--arcane-l); border: 1px solid rgba(212,130,74,0.45); }
     .badge-level0 { background: rgba(45,110,64,0.2); color: var(--green-l); border: 1px solid rgba(45,110,64,0.4); }
 
     .school-tag {
@@ -724,7 +724,7 @@
       max-width: 280px;
     }
 
-    .toast.arcane { border-color: var(--arcane-l); color: var(--arcane-l); background: rgba(92,61,158,0.15); }
+    .toast.arcane { border-color: var(--arcane-l); color: var(--arcane-l); background: rgba(124,46,16,0.20); }
     .toast.success { border-color: var(--green-l); color: var(--green-l); background: rgba(45,110,64,0.15); }
     .toast.warn    { border-color: var(--crimson-l); color: var(--crimson-l); background: rgba(139,30,48,0.15); }
 
@@ -738,7 +738,7 @@
       display: none;
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      background: rgba(15,15,26,0.95);
+      background: rgba(13,9,5,0.96);
       border-top: 1px solid var(--border);
       z-index: 150;
       height: 68px;
