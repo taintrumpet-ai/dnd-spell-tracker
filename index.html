@@ -2239,6 +2239,35 @@ function defaultSpells() {
       description: 'You can make your voice (or any sound that you can normally make vocally) seem to issue from someplace else. You can speak in any language you know. With respect to such voices and sounds, anyone who hears the sound and rolls a successful Will save recognizes it as illusory.\n\nSaving Throw: Will disbelief (if interacted with)\nSpell Resistance: No'
     },
 
+    {
+      id: uid(), name: "Nystul's Magic Aura", level: 1, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'One day/level',
+      components: 'V, S, F (a small square of silk)', classes: 'Wizard',
+      concentration: false, ritual: false,
+      description: "You alter an item's aura so that it registers to detect spells (and similar effects) as though it were of a different alignment or a magic item of a sort you specify. If the object bearing Nystul's magic aura has identify cast on it or is examined by a 12th level or higher wizard, that character makes a Will save. If the save succeeds, the character realizes the aura is false.\n\nSaving Throw: None; see text\nSpell Resistance: No"
+    },
+    {
+      id: uid(), name: 'Protection from Chaos', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (a little powdered silver)', classes: 'Cleric, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell wards a creature from attacks by chaotic creatures, from mental control, and from summoned creatures. It creates a magical barrier around the subject at a distance of 1 foot. The barrier moves with the subject and has two major effects.\n\nFirst, the subject gains a +2 deflection bonus to AC and a +2 resistance bonus on saves. Both bonuses apply against attacks made or effects created by chaotic creatures.\n\nSecond, the barrier blocks any attempt to possess the warded creature or to exercise mental control over the creature.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Protection from Good', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (a little powdered silver)', classes: 'Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell wards a creature from attacks by good creatures, from mental control, and from summoned creatures. It creates a magical barrier around the subject at a distance of 1 foot. The barrier moves with the subject and has two major effects.\n\nFirst, the subject gains a +2 deflection bonus to AC and a +2 resistance bonus on saves. Both bonuses apply against attacks made or effects created by good creatures.\n\nSecond, the barrier blocks any attempt to possess the warded creature or to exercise mental control over the creature.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Protection from Law', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (a little powdered silver)', classes: 'Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell wards a creature from attacks by lawful creatures, from mental control, and from summoned creatures. It creates a magical barrier around the subject at a distance of 1 foot. The barrier moves with the subject and has two major effects.\n\nFirst, the subject gains a +2 deflection bonus to AC and a +2 resistance bonus on saves. Both bonuses apply against attacks made or effects created by lawful creatures.\n\nSecond, the barrier blocks any attempt to possess the warded creature or to exercise mental control over the creature.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No'
+    },
+
     // ════════════════════════════════════════════════════
     // LEVEL 2
     // ════════════════════════════════════════════════════
@@ -2558,6 +2587,84 @@ function defaultSpells() {
       description: 'You send a message or sound on the wind to a designated spot. The whispering wind travels to a specific location within range that is familiar to you. The wind carries your message to that spot, where it whispers. The message is no more than 25 words long, or it may be a sound that you have heard.\n\nSaving Throw: None\nSpell Resistance: No'
     },
 
+    {
+      id: uid(), name: "Bear's Endurance", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Cleric, Druid, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The affected creature gains greater vitality and stamina. The spell grants the subject a +4 enhancement bonus to Constitution, which adds the usual benefits to hit points, Fortitude saves, Constitution checks, and so forth.\n\nHit points gained by a temporary increase in Constitution score are not temporary hit points. They go away when the subject's Constitution drops back to normal.\n\nSaving Throw: Fortitude negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: "Bull's Strength", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (a few hairs, or a pinch of dung, from a bull)', classes: 'Cleric, Druid, Paladin, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The subject becomes stronger. The spell grants the subject a +4 enhancement bonus to Strength, adding the usual benefits to melee attack rolls, melee damage rolls, and other uses of the Strength modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: "Cat's Grace", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M (pinch of cat fur)', classes: 'Bard, Druid, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The transmuted creature becomes quicker and more coordinated. The spell grants the subject a +4 enhancement bonus to Dexterity, adding the usual benefits to AC, Reflex saves, and other uses of the Dexterity modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: "Eagle's Splendor", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (feathers or droppings from an eagle)', classes: 'Bard, Cleric, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The transmuted creature becomes more poised, articulate, and personally forceful. The spell grants the subject a +4 enhancement bonus to Charisma, adding the usual benefits to Charisma-based skill checks and other uses of the Charisma modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: "Fox's Cunning", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (hairs or dung from a fox)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The transmuted creature becomes smarter. The spell grants the subject a +4 enhancement bonus to Intelligence, adding the usual benefits to Intelligence-based skill checks and other uses of the Intelligence modifier.\n\nNote: Bonus spells from a temporarily increased Intelligence score last only while the spell is in effect. Spells that require a minimum Intelligence to cast are still available, but once the effect wears off, the character loses access to them again.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: "Hideous Laughter", level: 2, school: 'Enchantment',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, M (tiny fruit tarts and a feather)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "This spell afflicts the subject with uncontrollable laughter. It collapses into gales of manic laughter, falling prone. The subject can take no actions while laughing, but is not considered helpless. After the spell ends, it can act normally.\n\nA creature with an Intelligence score of 2 or lower is not affected. A creature whose type is different from the caster's type gets a +4 bonus on its saving throw because humor doesn't translate well.\n\nSaving Throw: Will negates\nSpell Resistance: Yes"
+    },
+    {
+      id: uid(), name: 'Magic Mouth', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: 'Permanent until discharged',
+      components: 'V, S, M (a small bit of honeycomb and jade dust worth 10 gp)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "This spell imbues the chosen object or creature with an enchanted mouth that suddenly appears and speaks its message the next time a specified event occurs. The message can be up to 25 words long and must be in a language you know. The mouth mimics your voice, speaking in the same tone and manner.\n\nYou can specify a trigger condition that activates the spell—for example, when any creature enters the area, or when a specific phrase is spoken.\n\nSaving Throw: Will negates (object)\nSpell Resistance: Yes (object)"
+    },
+    {
+      id: uid(), name: "Melf's Acid Arrow", level: 2, school: 'Conjuration',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: '1 round + 1 round per three levels',
+      components: 'V, S, M (powdered rhubarb leaf and adder stomach), F (dart)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "A magical arrow of acid springs from your hand and speeds to its target. You must succeed on a ranged touch attack to hit your target. The arrow deals 2d4 points of acid damage with no splash damage. For every three caster levels you possess, the acid, unless somehow neutralized, lasts for another round after the arrow strikes, dealing another 2d4 points of damage in that round.\n\nSaving Throw: None\nSpell Resistance: No"
+    },
+    {
+      id: uid(), name: "Owl's Wisdom", level: 2, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M/DF (feathers or droppings from an owl)', classes: 'Cleric, Druid, Paladin, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "The transmuted creature becomes wiser. The spell grants the subject a +4 enhancement bonus to Wisdom, adding the usual benefits to Wisdom-based skill checks and other uses of the Wisdom modifier.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)"
+    },
+    {
+      id: uid(), name: 'Phantom Trap', level: 2, school: 'Illusion',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Permanent',
+      components: 'V, S, M (special dust worth 50 gp)', classes: 'Wizard',
+      concentration: false, ritual: false,
+      description: "This spell makes a lock or other small mechanism seem to be trapped to anyone who can detect traps. A rogue using find traps or similar ability detects the phantom trap and believes the item to be trapped. Attempting to disarm the phantom trap always fails (there is no trap to disarm), but the subject believes the trap is still there.\n\nSaving Throw: None\nSpell Resistance: No"
+    },
+    {
+      id: uid(), name: 'Summon Swarm', level: 2, school: 'Conjuration',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: 'Concentration + 2 rounds',
+      components: 'V, S, M/DF (a square of red cloth)', classes: 'Bard, Druid, Sorcerer, Wizard',
+      concentration: true, ritual: false,
+      description: "You summon a swarm of bats, rats, or spiders (your choice), which immediately attacks all creatures in its area. You may summon the swarm so that it shares the area of other creatures. If no living creatures are within its area, the swarm attacks or pursues the nearest creature as best it can.\n\nThe swarm is stationary except to pursue a target. It has a movement speed of 15 feet.\n\nSaving Throw: None\nSpell Resistance: No"
+    },
+
     // ════════════════════════════════════════════════════
     // LEVEL 3
     // ════════════════════════════════════════════════════
@@ -2833,6 +2940,41 @@ function defaultSpells() {
       components: 'V, S, M/DF (tiny fan and exotic feather)', classes: 'Air Domain, Cleric, Druid, Ranger, Sorcerer, Wizard',
       concentration: false, ritual: false,
       description: 'An invisible vertical curtain of wind appears. It is 2 feet thick and of considerable strength. The wall keeps out gases, wind-driven rain, and similar threats. Small flying creatures cannot pass through the wall, and medium ones must succeed on a DC 25 Fly check. Arrows and other normal ranged weapons are deflected upward and miss.\n\nGaseous breath weapons and gases cannot pass through the wall.\n\nSaving Throw: None; see text\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Dispel Magic', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'You can use dispel magic to end ongoing spells that have been cast on a creature or object, to temporarily suppress the magical abilities of a magic item, or to counter another spellcaster\'s spell.\n\nTargeted Dispel: One object, creature, or spell is the target. You make a dispel check (1d20 + your caster level, maximum +10) against the spell (DC = 11 + the spell\'s caster level). If successful, the spell ends.\n\nArea Dispel: The spell affects a 20-ft-radius burst. Each creature and object in the area is subject to one dispel check against each ongoing spell currently in effect on it.\n\nCounterspell: You can use dispel magic to counterspell another spellcaster\'s spell. It automatically succeeds at counterspelling any spell of 3rd level or lower.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: "Leomund's Tiny Hut", level: 3, school: 'Evocation',
+      castTime: '1 Standard Action', range: '20 ft', duration: '2 hours/level',
+      components: 'V, S, M (a small crystal bead)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "You create an unmoving, opaque sphere of force of any color you desire around yourself. Half the sphere projects above the ground, and the lower hemisphere passes through the ground. Up to nine other Medium creatures can fit into the field with you; they can freely pass in and out of the hut without harming it.\n\nThe temperature inside the hut is 70° F if the exterior temperature is between 0° and 100° F. The hut also provides protection against the elements. The hut withstands any wind of less than hurricane force, but a hurricane or stronger destroys it.\n\nThe interior is comfortable and roomy. The sphere is opaque from the outside, but you can see out of it as if looking through tinted glass.\n\nSaving Throw: None\nSpell Resistance: No"
+    },
+    {
+      id: uid(), name: 'Magic Circle against Chaos', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S, M/DF (a 3-ft-diameter circle of powdered silver)', classes: 'Cleric, Paladin, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell functions like protection from chaos, except that it is 10 feet in diameter and affects all creatures within its boundary. The spell acts as a barrier against mental control of chaotic creatures and against summoned chaotic creatures.\n\nIf the circle is complete, it also traps extraplanar creatures of chaotic alignment. An extraplanar creature that tries to cross the boundary must succeed on a Will save or be unable to cross.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No; see text'
+    },
+    {
+      id: uid(), name: 'Magic Circle against Good', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S, M/DF (a 3-ft-diameter circle of powdered silver)', classes: 'Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell functions like protection from good, except that it is 10 feet in diameter and affects all creatures within its boundary. The spell acts as a barrier against mental control of good creatures and against summoned good creatures.\n\nIf the circle is complete, it also traps extraplanar creatures of good alignment. An extraplanar creature that tries to cross the boundary must succeed on a Will save or be unable to cross.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No; see text'
+    },
+    {
+      id: uid(), name: 'Magic Circle against Law', level: 3, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level',
+      components: 'V, S, M/DF (a 3-ft-diameter circle of powdered silver)', classes: 'Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell functions like protection from law, except that it is 10 feet in diameter and affects all creatures within its boundary. The spell acts as a barrier against mental control of lawful creatures and against summoned lawful creatures.\n\nIf the circle is complete, it also traps extraplanar creatures of lawful alignment. An extraplanar creature that tries to cross the boundary must succeed on a Will save or be unable to cross.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No; see text'
     },
   ];
 }
