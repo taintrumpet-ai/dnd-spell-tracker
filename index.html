@@ -1333,7 +1333,10 @@ function loadState() {
       spMax     = s.spMax     ?? 17;
       spells    = s.spells    ?? defaultSpells();
       log       = s.log       ?? [];
-      prepared  = s.prepared  ?? [];
+      // Migrate old entries that lack an entryId
+      prepared  = (s.prepared ?? []).map(p => ({
+        entryId: p.entryId ?? uid(), spellId: p.spellId, cast: p.cast
+      }));
       document.getElementById('maxSP').value    = spMax;
       document.getElementById('charName').value = s.charName ?? '';
     } catch { spells = defaultSpells(); }
@@ -1532,7 +1535,7 @@ function renderTable() {
       <td><span class="duration-val">${s.duration}</span></td>
       <td>
         <div class="action-cell" onclick="event.stopPropagation()">
-          <button class="icon-btn prepare ${isPrepared(s.id)?'prepared-active':''}" title="${isPrepared(s.id)?'Remove from prepared':'Add to prepared'}" onclick="togglePrepare('${s.id}')">⚡</button>
+          <button class="icon-btn prepare ${isPrepared(s.id)?'prepared-active':''}" title="Add to prepared" onclick="togglePrepare('${s.id}')">⚡${preparedCount(s.id)>1?' ×'+preparedCount(s.id):''}</button>
           <button class="icon-btn" title="Edit"   onclick="editSpell('${s.id}')">✎</button>
           <button class="icon-btn delete" title="Delete" onclick="deleteSpell('${s.id}')">✕</button>
         </div>
@@ -1560,7 +1563,7 @@ function renderTable() {
         <span class="spell-card-stat">Duration: <span>${s.duration}</span></span>
       </div>
       <div class="spell-card-actions" onclick="event.stopPropagation()">
-        <button class="icon-btn prepare ${isPrepared(s.id)?'prepared-active':''}" onclick="togglePrepare('${s.id}')">⚡ ${isPrepared(s.id)?'Prepared':'Prepare'}</button>
+        <button class="icon-btn prepare ${isPrepared(s.id)?'prepared-active':''}" onclick="togglePrepare('${s.id}')">⚡ ${isPrepared(s.id)?'Prepared'+(preparedCount(s.id)>1?' ×'+preparedCount(s.id):''):'Prepare'}</button>
         <button class="icon-btn" onclick="viewSpell('${s.id}')">👁 View</button>
         <button class="icon-btn" onclick="editSpell('${s.id}')">✎ Edit</button>
         <button class="icon-btn delete" onclick="deleteSpell('${s.id}')">✕ Delete</button>
@@ -3007,25 +3010,44 @@ function isPrepared(spellId) {
   return prepared.some(p => p.spellId === spellId);
 }
 
+function preparedCount(spellId) {
+  return prepared.filter(p => p.spellId === spellId).length;
+}
+
 function togglePrepare(spellId) {
   const s = spells.find(x => x.id === spellId);
   if (!s) return;
-  if (isPrepared(spellId)) {
-    prepared = prepared.filter(p => p.spellId !== spellId);
-    toast(`"${s.name}" removed from prepared spells.`, '');
-  } else {
-    prepared.push({ spellId, cast: false });
-    toast(`"${s.name}" added to prepared spells!`, 'arcane');
-  }
+  prepared.push({ entryId: uid(), spellId, cast: false });
+  toast(`"${s.name}" added to prepared spells!`, 'arcane');
   saveState();
   renderTable();
   renderPrepared();
 }
 
-function toggleCast(spellId) {
-  const entry = prepared.find(p => p.spellId === spellId);
+function removePrepared(entryId) {
+  const entry = prepared.find(p => p.entryId === entryId);
   if (!entry) return;
-  const s = spells.find(x => x.id === spellId);
+  const s = spells.find(x => x.id === entry.spellId);
+  // If the spell was cast, refund the points
+  if (entry.cast && s) {
+    const cost = SPELL_COSTS[s.level] ?? 0;
+    if (cost > 0) {
+      spCurrent = Math.min(spMax, spCurrent + cost);
+      addLog(`Removed "${s.name}" (+${cost} pts refunded)`, cost);
+      updateOrb();
+    }
+  }
+  prepared = prepared.filter(p => p.entryId !== entryId);
+  if (s) toast(`"${s.name}" removed from prepared spells.`, '');
+  saveState();
+  renderTable();
+  renderPrepared();
+}
+
+function toggleCast(entryId) {
+  const entry = prepared.find(p => p.entryId === entryId);
+  if (!entry) return;
+  const s = spells.find(x => x.id === entry.spellId);
   entry.cast = !entry.cast;
 
   if (entry.cast && s) {
@@ -3105,10 +3127,10 @@ function renderPrepared() {
     const label = lvl === '0' ? 'Level 0' : `Level ${lvl}`;
     const cost  = lvl === '0' ? 'Free' : `${SPELL_COSTS[lvl] ?? '?'} pts`;
     html += `<p style="font-size:0.7rem;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin:14px 0 8px;">${label} &mdash; <span style="color:var(--text-dim)">${cost}</span></p>`;
-    byLevel[lvl].forEach(({ spell, cast, spellId }) => {
+    byLevel[lvl].forEach(({ spell, cast, entryId }) => {
       html += `
         <div class="prepared-card ${cast ? 'cast' : ''}">
-          <button class="prepared-cast-btn" onclick="toggleCast('${spellId}')" title="${cast ? 'Restore' : 'Mark as cast'}">
+          <button class="prepared-cast-btn" onclick="toggleCast('${entryId}')" title="${cast ? 'Restore' : 'Cast'}">
             ${cast ? '↩' : '✦'}
           </button>
           <div class="prepared-info">
@@ -3118,8 +3140,8 @@ function renderPrepared() {
             </div>
             <div class="prepared-meta">${spell.school} &bull; ${spell.castTime} &bull; ${spell.range}</div>
           </div>
-          <button class="icon-btn" onclick="viewSpell('${spellId}')" title="View details" style="flex-shrink:0">👁</button>
-          <button class="prepared-remove" onclick="togglePrepare('${spellId}')" title="Remove">✕</button>
+          <button class="icon-btn" onclick="viewSpell('${spell.id}')" title="View details" style="flex-shrink:0">👁</button>
+          <button class="prepared-remove" onclick="removePrepared('${entryId}')" title="Remove">✕</button>
         </div>`;
     });
   });
