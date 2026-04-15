@@ -1886,6 +1886,55 @@ function defaultSpells() {
       concentration: false, ritual: false,
       description: 'The subject gains 1 temporary hit point. These temporary hit points cannot stack with each other.\n\nSaving Throw: None\nSpell Resistance: Yes (harmless)'
     },
+    {
+      id: uid(), name: 'Create Water', level: 0, school: 'Conjuration (Creation)',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Cleric, Druid, Paladin',
+      concentration: false, ritual: false,
+      description: 'This spell generates wholesome, drinkable water, just like clean rain water. Create water can be made to fall as a deluge that douses flames, though the force of it is insufficient to damage anything.\n\nYou can create 2 gallons of water per caster level. The water can be created in an area as small as will actually contain the liquid, or in an area up to twice as large, and it falls from the sky as rain.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Cure Minor Wounds', level: 0, school: 'Conjuration (Healing)',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Cleric, Druid',
+      concentration: false, ritual: false,
+      description: 'Cure minor wounds cures 1 point of damage. Since undead are powered by negative energy, this spell deals 1 point of damage to them instead of curing them.\n\nSaving Throw: Will half (harmless); see text\nSpell Resistance: Yes (harmless); see text'
+    },
+    {
+      id: uid(), name: 'Guidance', level: 0, school: 'Divination',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 minute or until discharged',
+      components: 'V, S', classes: 'Cleric, Druid',
+      concentration: false, ritual: false,
+      description: 'This spell imbues the subject with a touch of divine guidance. The creature gets a +1 competence bonus on a single attack roll, saving throw, or skill check. It must choose to use the bonus before making the roll to which it applies.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Inflict Minor Wounds', level: 0, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'When laying your hand upon a creature, you channel negative energy that deals 1 point of damage to the target. Since undead are powered by negative energy, this spell cures 1 point of damage to such a creature instead of harming it.\n\nSaving Throw: Will half\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Lullaby', level: 0, school: 'Enchantment (Compulsion) [Mind-Affecting]',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: 'Concentration + 1 round/level',
+      components: 'V, S', classes: 'Bard',
+      concentration: true, ritual: false,
+      description: 'Any creatures within the area of a lullaby spell become drowsy and inattentive, taking a -5 penalty on Listen and Spot checks and a -2 penalty on Will saves against sleep effects. Lullaby lasts for as long as the caster concentrates, plus up to 1 round per caster level thereafter.\n\nTargets: All living creatures within a 10-ft.-radius burst\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Purify Food and Drink', level: 0, school: 'Transmutation',
+      castTime: '1 Standard Action', range: '10 ft', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Cleric, Druid',
+      concentration: false, ritual: false,
+      description: 'This spell makes spoiled, rotten, poisonous, or otherwise contaminated food and water pure and suitable for eating and drinking. This spell does not prevent subsequent natural decay or spoilage.\n\nUnholy water and similar food and drink of significance is spoiled by purify food and drink, but the spell has no effect on creatures of any type nor upon magic potions.\n\nTargets: 1 cu. ft./level of contaminated food and water\n\nSaving Throw: Will negates (object)\nSpell Resistance: Yes (object)'
+    },
+    {
+      id: uid(), name: 'Summon Instrument', level: 0, school: 'Conjuration (Summoning)',
+      castTime: '1 Standard Action', range: '0 ft', duration: '1 min/level',
+      components: 'V, S', classes: 'Bard',
+      concentration: false, ritual: false,
+      description: 'This spell summons one handheld musical instrument of your choice into your hands. This instrument is typical for its type. Only one instrument appears per casting, and it will play only for you. The instrument disappears at the end of the spell.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
 
     // ════════════════════════════════════════════════════
     // LEVEL 1 — RANGER
