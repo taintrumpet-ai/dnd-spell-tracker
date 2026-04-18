@@ -2073,6 +2073,174 @@ function defaultSpells() {
     // LEVEL 1
     // ════════════════════════════════════════════════════
     {
+      id: uid(), name: 'Bane', level: 1, school: 'Enchantment (Compulsion) [Mind-Affecting, Fear]',
+      castTime: '1 Standard Action', range: '50 ft', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'Bane fills your enemies with fear and doubt. Each affected creature takes a -1 penalty on attack rolls and a -1 penalty on saving throws against fear effects. Bane counters and dispels bless.\n\nTargets: All enemies within 50 ft.\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Bless', level: 1, school: 'Enchantment (Compulsion) [Mind-Affecting]',
+      castTime: '1 Standard Action', range: '50 ft', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Cleric, Paladin',
+      concentration: false, ritual: false,
+      description: 'Bless fills your allies with courage. Each ally gains a +1 morale bonus on attack rolls and on saving throws against fear effects. Bless counters and dispels bane.\n\nTargets: The caster and all allies within a 50-ft. burst, centered on the caster.\n\nSaving Throw: None\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Bless Weapon', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S', classes: 'Paladin',
+      concentration: false, ritual: false,
+      description: "This transmutation makes a weapon strike true against evil foes. The weapon is treated as good-aligned for the purpose of overcoming damage reduction. The weapon also becomes good, and any attack made with the weapon against an evil target automatically confirms any threatened critical hits. All critical-hit rolls against evil foes are automatically successful, so every threat is a critical hit.\n\nAdditionally, the weapon bypasses the damage reduction of creatures such as certain outsiders and undead. Individual arrows or bolts can be transmuted, but affected projectile weapons (such as bows) do not confer the benefit to the projectiles they shoot.\n\nSaving Throw: None\nSpell Resistance: No"
+    },
+    {
+      id: uid(), name: 'Command', level: 1, school: 'Enchantment (Compulsion) [Language-Dependent, Mind-Affecting]',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round',
+      components: 'V', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'You give the subject a single command, which it obeys to the best of its ability at its earliest opportunity. You may select from the following options: Approach, Drop, Fall, Flee, or Halt.\n\nA creature that cannot hear or understand you or that has more Hit Dice than you may ignore the spell. The subject follows the command on its next turn.\n\nTargets: One living creature\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Cure Light Wounds', level: 1, school: 'Conjuration (Healing)',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Bard, Cleric, Druid, Paladin, Ranger',
+      concentration: false, ritual: false,
+      description: 'When laying on hands, you channel positive energy that cures 1d8 points of damage +1 point per caster level (maximum +5). Since undead are powered by negative energy, this spell deals damage to them instead of curing their wounds. An undead creature can apply spell resistance, and can attempt a Will save to take half damage.\n\nSaving Throw: Will half (harmless); see text\nSpell Resistance: Yes (harmless); see text'
+    },
+    {
+      id: uid(), name: 'Detect Chaos/Evil/Good/Law', level: 1, school: 'Divination',
+      castTime: '1 Standard Action', range: '60 ft (cone)', duration: 'Concentration, up to 10 min/level',
+      components: 'V, S, DF', classes: 'Cleric',
+      concentration: true, ritual: false,
+      description: 'You can sense the presence of a particular alignment (chaos, evil, good, or law — you choose which when casting). The amount of information revealed depends on how long you study a particular area or subject.\n\n1st round: Presence or absence of auras of the chosen alignment.\n2nd round: Number of auras and the strength of the strongest aura.\n3rd round: Strength and location of each aura.\n\nEach of detect chaos, detect evil, detect good, and detect law is a separate spell; choose which one when you prepare it.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Divine Favor', level: 1, school: 'Evocation',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 minute',
+      components: 'V, S, DF', classes: 'Cleric, Paladin',
+      concentration: false, ritual: false,
+      description: 'Calling upon the strength and wisdom of a deity, you gain a +1 luck bonus on attack and weapon damage rolls for every three caster levels you have (+1 minimum, +3 maximum). The bonus does not apply to spell damage.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Doom', level: 1, school: 'Necromancy [Fear, Mind-Affecting]',
+      castTime: '1 Standard Action', range: 'Medium (100 ft + 10 ft/level)', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'This spell fills a single subject with a feeling of horrible dread that causes it to become shaken. A shaken creature takes a -2 penalty on attack rolls, saving throws, ability checks, and skill checks.\n\nTargets: One living creature\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Entropic Shield', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Personal', duration: '1 min/level',
+      components: 'V, S', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'A magical field appears around you, glowing with a chaotic blast of multicolored hues. This field deflects incoming ranged attacks (arrows, crossbow bolts, spears, and similar attacks) — ranged attacks against you have a 20% miss chance. This is similar to the effect of concealment, but it applies only to ranged attacks.\n\nEffects that negate the miss chance granted by concealment (such as blind-fight or true seeing) do not negate the miss chance provided by entropic shield.\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Faerie Fire', level: 1, school: 'Evocation [Light]',
+      castTime: '1 Standard Action', range: 'Long (400 ft + 40 ft/level)', duration: '1 min/level',
+      components: 'V, S, DF', classes: 'Druid',
+      concentration: false, ritual: false,
+      description: 'A pale glow surrounds and outlines the subjects. Outlined subjects shed light as candles, take a -20 penalty on Hide checks, and no longer benefit from concealment (though invisible creatures are still affected by total concealment rules, but can be seen as dim outlines).\n\nThe outline does not break invisibility, but if an invisible creature is within the area it glows as if colored in phosphorescent paint.\n\nArea: Creatures and objects within a 5-ft.-radius burst\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Goodberry', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 day/level',
+      components: 'V, S, DF', classes: 'Druid',
+      concentration: false, ritual: false,
+      description: 'Casting this spell on a handful of freshly picked berries (as many as 2d4) makes them magical. You (as well as any other druid of 3rd or higher level) can immediately discern which berries are affected.\n\nEach transmuted berry provides sustenance as if it were a normal meal for a Medium creature, and each one cures 1 point of damage when eaten (up to a maximum of 8 points of damage healed within 24 hours).\n\nSaving Throw: None\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Hide from Undead', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '10 min/level (D)',
+      components: 'V, S, DF', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'Undead cannot see, hear, or smell the warded creatures. Non-intelligent undead (such as skeletons and zombies) are automatically affected and act as though the warded creatures are not there. Intelligent undead (those with Int 3 or higher) get a Will save to notice the warded creatures.\n\nIf a warded creature touches or attacks any undead, the spell ends for all of them.\n\nSaving Throw: Will negates (harmless); see text\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Inflict Light Wounds', level: 1, school: 'Necromancy',
+      castTime: '1 Standard Action', range: 'Touch', duration: 'Instantaneous',
+      components: 'V, S', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'When laying your hand upon a creature, you channel negative energy that deals 1d8 points of damage +1 point per caster level (maximum +5). Since undead are powered by negative energy, this spell cures such a creature of a like amount of damage, rather than harming it.\n\nSaving Throw: Will half\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Lesser Confusion', level: 1, school: 'Enchantment (Compulsion) [Mind-Affecting]',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round',
+      components: 'V, S, F (a set of three nut shells)', classes: 'Bard',
+      concentration: false, ritual: false,
+      description: 'This spell causes a single creature to become confused, behaving randomly for 1 round. Roll d%: 01-10 attack caster with melee or ranged weapons; 11-20 act normally; 21-50 do nothing but babble incoherently; 51-70 flee away from caster at top speed; 71-100 attack nearest creature.\n\nTargets: One living creature\n\nSaving Throw: Will negates\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Magic Stone', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '30 min or until discharged',
+      components: 'V, S, DF', classes: 'Cleric, Druid',
+      concentration: false, ritual: false,
+      description: 'You transmute as many as three pebbles, which can be no larger than sling bullets, so that they strike with great force when thrown or slung. Each stone gains a +1 enhancement bonus on attack and damage rolls. Treat them as sling bullets (range increment 50 ft).\n\nIf cast on stones not thrown or slung within 30 minutes, the magic fades. Stones used against undead deal 2d6+1 points of damage per hit.\n\nSaving Throw: Will negates (harmless, object)\nSpell Resistance: Yes (harmless, object)'
+    },
+    {
+      id: uid(), name: "Nystul's Magic Aura", level: 1, school: 'Illusion (Glamer)',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 day/level',
+      components: 'V, S, F (a small square of silk)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "You alter an item's magical aura so that it registers to detect spells (and spells with similar capabilities) as if it were nonmagical, as a magic item of a kind you specify, or as the subject of a spell you specify. If the object bearing Nystul's magic aura has identify cast on it or is similarly examined, the examiner recognizes that the aura is false and detects the object's actual qualities if he succeeds on a Will save.\n\nOtherwise, believing the aura to be genuine, he learns no details from an analysis.\n\nTargets: One touched object weighing up to 5 lb./level\n\nSaving Throw: None; see text\nSpell Resistance: No"
+    },
+    {
+      id: uid(), name: 'Produce Flame', level: 1, school: 'Evocation [Fire]',
+      castTime: '1 Standard Action', range: '0 ft', duration: '1 min/level (D)',
+      components: 'V, S', classes: 'Druid',
+      concentration: false, ritual: false,
+      description: 'Flames as bright as a torch appear in your open hand. The flames harm neither you nor your equipment. In addition to providing illumination, the flames can be hurled or used to touch enemies.\n\nYou can strike an opponent with a melee touch attack, dealing 1d6 points of fire damage +1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 120 feet as a thrown weapon with a 20-ft. range increment — when doing so, produce flame ends (no more flames).\n\nSaving Throw: None\nSpell Resistance: Yes'
+    },
+    {
+      id: uid(), name: 'Remove Fear', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '10 minutes; see text',
+      components: 'V, S', classes: 'Bard, Cleric',
+      concentration: false, ritual: false,
+      description: 'You instill courage in the subject, granting a +4 morale bonus against fear effects for 10 minutes. If the subject is under the influence of a fear effect when receiving the spell, that effect is suppressed for the duration of the spell.\n\nRemove fear counters and dispels cause fear.\n\nTargets: One creature plus one additional creature per four levels\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Sanctuary', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 round/level (D)',
+      components: 'V, S, DF', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'Any opponent attempting to directly attack the warded creature, even with a targeted spell, must attempt a Will save. If the save succeeds, the opponent can attack normally and is unaffected by that casting of the spell. If the save fails, the opponent cannot follow through with the attack — that part of its action is lost, and it cannot directly attack the warded creature for the duration of the spell.\n\nThe spell does not prevent area attacks affecting the warded creature. After warded creature makes an attack, offensive spell, or other offensive action against any creature, the sanctuary ends.\n\nSaving Throw: Will negates\nSpell Resistance: No'
+    },
+    {
+      id: uid(), name: 'Shield of Faith', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level',
+      components: 'V, S, M (parchment with holy text)', classes: 'Cleric',
+      concentration: false, ritual: false,
+      description: 'This spell creates a shimmering, magical field around the target that averts and deflects attacks. The spell grants the subject a +2 deflection bonus to AC, with an additional +1 to the bonus for every six caster levels you have (maximum +5 deflection bonus at 18th level).\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: Yes (harmless)'
+    },
+    {
+      id: uid(), name: 'Shillelagh', level: 1, school: 'Transmutation',
+      castTime: '1 Standard Action', range: 'Touch', duration: '1 min/level (D)',
+      components: 'V, S, DF', classes: 'Druid',
+      concentration: false, ritual: false,
+      description: 'Your own nonmagical club or quarterstaff becomes a weapon with a +1 enhancement bonus on attack and damage rolls. A staff gains the damage of a larger weapon (damage for a Medium staff becomes 2d6), and a club becomes 2d6 damage for a Medium wielder. The weapon also becomes magic for the purpose of overcoming damage reduction.\n\nOnly you can wield the affected weapon with these benefits. Others wielding it get none of the magical benefit of the spell.\n\nTargets: One touched nonmagical oak club or quarterstaff\n\nSaving Throw: Will negates (object)\nSpell Resistance: Yes (object)'
+    },
+    {
+      id: uid(), name: "Tasha's Hideous Laughter", level: 1, school: 'Enchantment (Compulsion) [Mind-Affecting]',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, M (tarts and a feather)', classes: 'Bard, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell afflicts the subject with uncontrollable laughter. It collapses into gales of manic laughter, falling prone. The subject can take no actions while laughing, but is not considered helpless. After the spell ends, it can act normally.\n\nA creature with an Intelligence score of 2 or lower is not affected. A creature whose type is different from the caster\\'s receives a +4 bonus on its saving throw, because humor doesn\\'t "translate" well.\n\nTargets: One creature; see text\n\nSaving Throw: Will negates\nSpell Resistance: Yes"
+    },
+    {
+      id: uid(), name: "Tenser's Floating Disk", level: 1, school: 'Evocation [Force]',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 hour/level',
+      components: 'V, S, M (a drop of mercury)', classes: 'Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: "You create a slightly concave, circular plane of force that follows you about and carries loads for you. The disk is 3 feet in diameter and 1 inch deep at its center. It can hold 100 pounds of weight per caster level. The disk floats about 3 feet above the ground.\n\nThe disk holds whatever is placed on it. The disk always remains level and floats along at a height of 3 feet. The disk travels in whatever direction you face. It cannot ascend or descend, but it can move up or down slopes.\n\nSaving Throw: None\nSpell Resistance: No"
+    },
+    {
+      id: uid(), name: 'Undetectable Alignment', level: 1, school: 'Abjuration',
+      castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '24 hours',
+      components: 'V, S', classes: 'Bard, Cleric, Paladin',
+      concentration: false, ritual: false,
+      description: "An undetectable alignment spell conceals the alignment of an object or a creature from all forms of divination.\n\nTargets: One creature or object\n\nSaving Throw: Will negates (object)\nSpell Resistance: Yes (object)"
+    },
+    {
       id: uid(), name: 'Alarm', level: 1, school: 'Abjuration',
       castTime: '1 Standard Action', range: 'Close (25 ft + 5 ft/2 levels)', duration: '2 hours/level',
       components: 'V, S, F/DF (a tiny bell and fine silver wire)', classes: 'Ranger, Wizard',
@@ -3096,6 +3264,13 @@ function defaultSpells() {
       components: 'V, S, M/DF (a 3-ft-diameter circle of powdered silver)', classes: 'Cleric, Sorcerer, Wizard',
       concentration: false, ritual: false,
       description: 'This spell functions like protection from law, except that it is 10 feet in diameter and affects all creatures within its boundary. The spell acts as a barrier against mental control of lawful creatures and against summoned lawful creatures.\n\nIf the circle is complete, it also traps extraplanar creatures of lawful alignment. An extraplanar creature that tries to cross the boundary must succeed on a Will save or be unable to cross.\n\nSaving Throw: Will negates (harmless)\nSpell Resistance: No; see text'
+    },
+    {
+      id: uid(), name: 'Summon Monster IV', level: 4, school: 'Conjuration',
+      castTime: '1 Round', range: 'Close (25 ft + 5 ft/2 levels)', duration: '1 round/level',
+      components: 'V, S, F/DF (tiny bag and small candle)', classes: 'Bard, Cleric, Sorcerer, Wizard',
+      concentration: false, ritual: false,
+      description: 'This spell summons an extraplanar creature from the Summon Monster IV list. It appears where you designate and acts immediately, on your turn. It attacks your opponents to the best of its ability.\n\nSummon Monster IV list includes: Celestial/fiendish dire wolf, Celestial/fiendish giant wasp, Mephit (any), Small air elemental, and others. Can also summon one creature from the Summon Monster I, II, or III lists.\n\nSaving Throw: None\nSpell Resistance: No'
     },
   ];
 }
