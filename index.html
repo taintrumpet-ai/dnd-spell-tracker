@@ -1102,6 +1102,111 @@
       display: block;
       margin-top: 1px;
     }
+
+    /* ── Metamagic Adjustment Strip (level grid) ─────── */
+    .meta-adj-strip {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .meta-adj-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-right: 2px;
+    }
+
+    .meta-adj-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      padding: 4px 9px;
+      font-size: 0.68rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .meta-adj-btn:hover { border-color: var(--border-l); color: var(--text-head); }
+    .meta-adj-btn.active { background: var(--arcane-glow); border-color: var(--arcane-l); color: var(--arcane-l); }
+
+    .lvl-btn.meta-active { border-color: rgba(212,130,74,0.5); }
+    .lvl-btn .meta-eff { font-size: 0.55rem; color: var(--arcane-l); display: block; margin-top: 1px; }
+
+    /* ── Metamagic Chips (prepared card) ─────────────── */
+    .meta-chips-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 7px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .meta-chip-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .meta-chip {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      color: var(--text-dim);
+      padding: 2px 9px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.12s;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .meta-chip:hover { border-color: var(--border-l); color: var(--text-head); }
+    .meta-chip.active { background: rgba(124,46,16,0.3); border-color: var(--arcane-l); color: var(--arcane-l); }
+
+    .meta-cost-badge {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      margin-left: 2px;
+    }
+    .meta-cost-badge .cost-new { color: var(--gold-light); font-weight: 700; }
+
+    /* ── Metamagic Reference Table (spell modal) ─────── */
+    .metamagic-ref {
+      margin-top: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .metamagic-ref-title {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 12px 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .metamagic-ref table { width: 100%; border-collapse: collapse; }
+    .metamagic-ref td { padding: 6px 12px; font-size: 0.78rem; border-bottom: 1px solid var(--border); }
+    .metamagic-ref tr:last-child td { border-bottom: none; }
+    .metamagic-ref .col-feat { color: var(--text); }
+    .metamagic-ref .col-adj  { color: var(--text-muted); text-align: center; width: 50px; }
+    .metamagic-ref .col-cost { color: var(--gold-light); font-weight: 600; text-align: right; width: 110px; }
   </style>
 </head>
 <body>
@@ -1190,6 +1295,7 @@
 
         <!-- Spend by Level -->
         <p class="spend-title">Spend by Spell Level</p>
+        <div class="meta-adj-strip" id="metaAdjStrip"></div>
         <div class="level-grid" id="levelGrid"></div>
 
         <!-- Save DCs -->
@@ -1428,6 +1534,7 @@ let prepared  = [];
 let concentrating     = null; // { spellId, spellName } | null
 let lastAction        = null; // undo snapshot for the most recent cast
 let castingAbilityMod = 0;   // INT/WIS/CHA modifier for Save DC calc
+let levelMetaAdj      = 0;   // transient metamagic adj for the level-spend grid
 
 // ── Spell Point Logic ──────────────────────────────────
 function loadState() {
@@ -1441,9 +1548,10 @@ function loadState() {
       log               = s.log               ?? [];
       concentrating     = s.concentrating     ?? null;
       castingAbilityMod = s.castingAbilityMod ?? 0;
-      // Migrate old entries that lack an entryId
+      // Migrate old entries — add entryId and metamagicAdj if missing
       prepared = (s.prepared ?? []).map(p => ({
-        entryId: p.entryId ?? uid(), spellId: p.spellId, cast: p.cast
+        entryId: p.entryId ?? uid(), spellId: p.spellId, cast: p.cast,
+        metamagicAdj: p.metamagicAdj ?? 0
       }));
       document.getElementById('maxSP').value    = spMax;
       document.getElementById('charName').value = s.charName ?? '';
@@ -1501,19 +1609,23 @@ function adjustSP(delta) {
 }
 
 function spendLevel(level) {
-  const cost = SPELL_COSTS[level];
+  const adj     = levelMetaAdj;
+  const effLvl  = Math.min(9, level + adj);
+  const cost    = SPELL_COSTS[effLvl];
   if (spCurrent < cost) {
-    toast(`Not enough points for a level ${level} spell! (need ${cost})`, 'warn');
+    toast(`Not enough points for that spell! (need ${cost})`, 'warn');
     return;
   }
   lastAction = { type: 'spendLevel', prevSP: spCurrent, prevConcentrating: concentrating ? { ...concentrating } : null, entryId: null };
   spCurrent -= cost;
-  addLog(`Cast level ${level} spell (−${cost} pts)`, -cost);
+  const metaNote = adj > 0 ? ` +${adj} meta (→Lv${effLvl})` : '';
+  addLog(`Cast Lv${level}${metaNote} (−${cost} pts)`, -cost);
   updateOrb();
   document.getElementById('undoBtn').disabled = false;
+  if (adj > 0) { levelMetaAdj = 0; buildLevelGrid(); }
   saveState();
-  toast(`Level ${level} spell cast — ${cost} points spent`, 'arcane');
-  logToSheet(`Cast Level ${level} Spell`, null, -cost);
+  toast(`Lv${level}${adj > 0 ? ` +${adj} meta` : ''} cast — ${cost} pts spent`, 'arcane');
+  logToSheet(`Cast Level ${level} Spell${adj > 0 ? ` (+${adj} metamagic)` : ''}`, null, -cost);
 }
 
 function restSP() {
@@ -1581,16 +1693,38 @@ function renderLog() {
   }).join('');
 }
 
+const GRID_METAS = [
+  { adj: 0, label: '— None' },
+  { adj: 1, label: '+1 Ext/Sil' },
+  { adj: 2, label: '+2 Empower' },
+  { adj: 3, label: '+3 Maximize' },
+  { adj: 4, label: '+4 Quicken' },
+];
+
 function buildLevelGrid() {
+  // Metamagic adjustment strip
+  const strip = document.getElementById('metaAdjStrip');
+  strip.innerHTML =
+    `<span class="meta-adj-label">Meta:</span>` +
+    GRID_METAS.map(m =>
+      `<button class="meta-adj-btn ${levelMetaAdj === m.adj ? 'active' : ''}"
+         onclick="setLevelMetaAdj(${m.adj})">${m.label}</button>`
+    ).join('');
+
+  // Level buttons with adjusted costs
   const grid = document.getElementById('levelGrid');
-  // Cantrip + levels 1-9
-  const levels = [0,1,2,3,4,5,6,7,8,9];
-  grid.innerHTML = levels.map(l => {
-    const cost = SPELL_COSTS[l];
-    const label = l === 0 ? 'Level 0' : `Level ${l}`;
-    return `<button class="lvl-btn" data-cost="${cost}" onclick="spendLevel(${l})">
-      <span class="lvl-num">${l === 0 ? '0' : l}</span>
-      <span class="lvl-cost">${cost === 0 ? 'Free' : `${cost} pts`}</span>
+  grid.innerHTML = [0,1,2,3,4,5,6,7,8,9].map(l => {
+    const effLvl  = Math.min(9, l + levelMetaAdj);
+    const cost     = SPELL_COSTS[effLvl];
+    const baseCost = SPELL_COSTS[l];
+    const adjusted = levelMetaAdj > 0;
+    const metaLine = adjusted
+      ? `<span class="meta-eff">→Lv${effLvl} / ${cost === 0 ? 'Free' : cost + ' pts'}</span>`
+      : '';
+    return `<button class="lvl-btn ${adjusted ? 'meta-active' : ''}" data-cost="${cost}" onclick="spendLevel(${l})">
+      <span class="lvl-num">${l}</span>
+      <span class="lvl-cost">${baseCost === 0 ? 'Free' : baseCost + ' pts'}</span>
+      ${metaLine}
     </button>`;
   }).join('');
 }
@@ -1733,6 +1867,25 @@ function viewSpell(id) {
       <div class="spell-stat"><div class="stat-label">Save DC</div><div class="stat-val" style="color:var(--gold-light)">${10 + s.level + castingAbilityMod} <span style="font-size:0.7rem;color:var(--text-dim)">(10+${s.level}+${castingAbilityMod})</span></div></div>
     </div>
     <div class="spell-desc">${s.description || 'No description provided.'}</div>
+    <div class="metamagic-ref">
+      <div class="metamagic-ref-title">Metamagic Costs (base: ${s.level === 0 ? 'Free' : SPELL_COSTS[s.level] + ' pts'})</div>
+      <table>
+        ${[
+          { feats: 'Extend / Silent / Still / Enlarge', adj: 1 },
+          { feats: 'Empower',                           adj: 2 },
+          { feats: 'Maximize / Widen',                  adj: 3 },
+          { feats: 'Quicken',                           adj: 4 },
+        ].map(row => {
+          const eff  = Math.min(9, s.level + row.adj);
+          const cost = SPELL_COSTS[eff];
+          return `<tr>
+            <td class="col-feat">${row.feats}</td>
+            <td class="col-adj">+${row.adj}</td>
+            <td class="col-cost">Lv${eff} — ${cost} pts</td>
+          </tr>`;
+        }).join('')}
+      </table>
+    </div>
   `;
   document.getElementById('viewModal').classList.add('open');
 }
@@ -3401,6 +3554,21 @@ function defaultSpells() {
   ];
 }
 
+// ── Metamagic helpers ─────────────────────────────────
+function setLevelMetaAdj(adj) {
+  levelMetaAdj = levelMetaAdj === adj ? 0 : adj; // toggle off if same
+  buildLevelGrid();
+  updateOrb(); // re-evaluate which buttons are disabled
+}
+
+function setEntryMetamagic(entryId, adj) {
+  const entry = prepared.find(p => p.entryId === entryId);
+  if (!entry) return;
+  entry.metamagicAdj = entry.metamagicAdj === adj ? 0 : adj; // toggle off if same
+  saveState();
+  renderPrepared();
+}
+
 // ── Concentration Tracker ──────────────────────────────
 function renderConcBanner() {
   const banner = document.getElementById('concBanner');
@@ -3469,7 +3637,7 @@ function preparedCount(spellId) {
 function togglePrepare(spellId) {
   const s = spells.find(x => x.id === spellId);
   if (!s) return;
-  prepared.push({ entryId: uid(), spellId, cast: false });
+  prepared.push({ entryId: uid(), spellId, cast: false, metamagicAdj: 0 });
   toast(`"${s.name}" added to prepared spells!`, 'arcane');
   saveState();
   renderTable();
@@ -3482,7 +3650,9 @@ function removePrepared(entryId) {
   const s = spells.find(x => x.id === entry.spellId);
   // If the spell was cast, refund the points
   if (entry.cast && s) {
-    const cost = SPELL_COSTS[s.level] ?? 0;
+    const mAdj    = entry.metamagicAdj ?? 0;
+    const effLvl  = Math.min(9, s.level + mAdj);
+    const cost    = SPELL_COSTS[effLvl] ?? 0;
     if (cost > 0) {
       spCurrent = Math.min(spMax, spCurrent + cost);
       addLog(`Removed "${s.name}" (+${cost} pts refunded)`, cost);
@@ -3503,8 +3673,10 @@ function toggleCast(entryId) {
   entry.cast = !entry.cast;
 
   if (entry.cast && s) {
-    // Casting — check points first before snapshotting undo
-    const cost = SPELL_COSTS[s.level] ?? 0;
+    // Casting — resolve metamagic-adjusted cost first
+    const mAdj   = entry.metamagicAdj ?? 0;
+    const effLvl = Math.min(9, s.level + mAdj);
+    const cost   = SPELL_COSTS[effLvl] ?? 0;
     if (cost > 0 && spCurrent < cost) {
       toast(`Not enough spell points to cast "${s.name}"! (need ${cost})`, 'warn');
       entry.cast = false;
@@ -3514,7 +3686,8 @@ function toggleCast(entryId) {
     lastAction = { type: 'toggleCast', prevSP: spCurrent, prevConcentrating: concentrating ? { ...concentrating } : null, entryId };
     if (cost > 0) {
       spCurrent -= cost;
-      addLog(`Cast "${s.name}" (−${cost} pts)`, -cost);
+      const metaNote = mAdj > 0 ? ` +${mAdj} meta (→Lv${effLvl})` : '';
+      addLog(`Cast "${s.name}"${metaNote} (−${cost} pts)`, -cost);
       updateOrb();
     }
     // Auto-track concentration
@@ -3526,11 +3699,13 @@ function toggleCast(entryId) {
       renderConcBanner();
     }
     document.getElementById('undoBtn').disabled = false;
-    toast(`"${s.name}" cast!`, 'arcane');
-    logToSheet(`Cast Prepared Spell (Level ${s.level})`, s.name, -cost);
+    toast(`"${s.name}"${mAdj > 0 ? ` (+${mAdj} meta)` : ''} cast!`, 'arcane');
+    logToSheet(`Cast Prepared Spell (Level ${s.level}${mAdj > 0 ? `+${mAdj} meta` : ''})`, s.name, -cost);
   } else if (s) {
-    // Restoring — refund points
-    const cost = SPELL_COSTS[s.level] ?? 0;
+    // Restoring — refund points using the same adjusted cost
+    const mAdj   = entry.metamagicAdj ?? 0;
+    const effLvl = Math.min(9, s.level + mAdj);
+    const cost   = SPELL_COSTS[effLvl] ?? 0;
     if (cost > 0) {
       spCurrent = Math.min(spMax, spCurrent + cost);
       addLog(`Restored "${s.name}" (+${cost} pts)`, cost);
@@ -3603,7 +3778,21 @@ function renderPrepared() {
     const label = lvl === '0' ? 'Level 0' : `Level ${lvl}`;
     const cost  = lvl === '0' ? 'Free' : `${SPELL_COSTS[lvl] ?? '?'} pts`;
     html += `<p style="font-size:0.7rem;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin:14px 0 8px;">${label} &mdash; <span style="color:var(--text-dim)">${cost}</span></p>`;
-    byLevel[lvl].forEach(({ spell, cast, entryId }) => {
+    byLevel[lvl].forEach(({ spell, cast, entryId, metamagicAdj: mAdj }) => {
+      mAdj = mAdj ?? 0;
+      const effLvl   = Math.min(9, spell.level + mAdj);
+      const baseCost = SPELL_COSTS[spell.level] ?? 0;
+      const adjCost  = SPELL_COSTS[effLvl]      ?? 0;
+      const metaChips = !cast ? `
+        <div class="meta-chips-row">
+          <span class="meta-chip-label">Meta:</span>
+          ${[{a:1,l:'+1 Ext'},{a:2,l:'+2 Emp'},{a:3,l:'+3 Max'},{a:4,l:'+4 Qui'}].map(m => `
+            <button class="meta-chip ${mAdj===m.a?'active':''}"
+              onclick="event.stopPropagation();setEntryMetamagic('${entryId}',${m.a})"
+              title="${['','Extend / Silent / Still / Enlarge','Empower','Maximize / Widen','Quicken'][m.a]}">${m.l}</button>
+          `).join('')}
+          ${mAdj > 0 ? `<span class="meta-cost-badge">${baseCost||'Free'} pts → <span class="cost-new">${adjCost} pts</span></span>` : ''}
+        </div>` : '';
       html += `
         <div class="prepared-card ${cast ? 'cast' : ''}">
           <button class="prepared-cast-btn" onclick="toggleCast('${entryId}')" title="${cast ? 'Restore' : 'Cast'}">
@@ -3615,6 +3804,7 @@ function renderPrepared() {
               ${spell.ritual ? '<span class="ritual-badge">R</span>' : ''}
             </div>
             <div class="prepared-meta">${spell.school} &bull; ${spell.castTime} &bull; ${spell.range}</div>
+            ${metaChips}
           </div>
           <button class="icon-btn" onclick="viewSpell('${spell.id}')" title="View details" style="flex-shrink:0">👁</button>
           <button class="prepared-remove" onclick="removePrepared('${entryId}')" title="Remove">✕</button>
