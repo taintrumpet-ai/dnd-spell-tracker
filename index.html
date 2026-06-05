@@ -1232,88 +1232,130 @@
     .metamagic-ref .col-adj  { color: var(--text-muted); text-align: center; width: 50px; }
     .metamagic-ref .col-cost { color: var(--gold-light); font-weight: 600; text-align: right; width: 110px; }
 
-    /* ── Initiative Tracker ──────────────────────────── */
-    .init-add-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
+    /* ── Combat Tracker ──────────────────────────────── */
 
-    .init-add-row input[type=text] {
-      flex: 1;
-      min-width: 140px;
+    /* Add-combatant card */
+    .combat-add-card {
       background: var(--surface2);
       border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .combat-section-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 10px;
+    }
+
+    .combat-input-full {
+      width: 100%;
+      background: var(--surface3);
+      border: 1px solid var(--border-l);
       border-radius: var(--radius-sm);
       color: var(--text-head);
-      padding: 9px 12px;
-      font-size: 0.875rem;
+      padding: 10px 12px;
+      font-size: 0.9rem;
       font-family: inherit;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .init-add-row input[type=text]:focus { outline: none; border-color: var(--arcane-l); box-shadow: 0 0 0 3px var(--arcane-glow); }
+    .combat-input-full:focus { outline: none; border-color: var(--arcane-l); box-shadow: 0 0 0 3px var(--arcane-glow); }
 
-    .init-score-input {
-      width: 74px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-head);
-      padding: 9px 10px;
-      font-size: 0.875rem;
-      font-family: inherit;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .init-score-input:focus { outline: none; border-color: var(--arcane-l); box-shadow: 0 0 0 3px var(--arcane-glow); }
-
-    .init-roll-row {
+    .combat-stats-row {
       display: flex;
-      gap: 8px;
-      align-items: center;
+      align-items: flex-end;
+      gap: 10px;
+      margin-top: 10px;
       flex-wrap: wrap;
-      margin-bottom: 4px;
     }
 
-    .init-roll-label { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; }
+    .combat-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-    .init-mod-input {
-      width: 60px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
+    .combat-field-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .combat-input-num {
+      width: 68px;
+      background: var(--surface3);
+      border: 1px solid var(--border-l);
       border-radius: var(--radius-sm);
       color: var(--text-head);
-      padding: 7px 8px;
-      font-size: 0.85rem;
+      padding: 8px 6px;
+      font-size: 0.9rem;
       font-family: inherit;
       text-align: center;
       transition: border-color 0.15s;
     }
-    .init-mod-input:focus { outline: none; border-color: var(--arcane-l); }
+    .combat-input-num:focus { outline: none; border-color: var(--arcane-l); }
 
-    .init-pc-label {
+    .combat-pc-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .combat-pc-field input[type=checkbox] {
+      accent-color: var(--gold);
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    /* Quick-roll strip */
+    .combat-quickroll {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
       display: flex;
       align-items: center;
-      gap: 5px;
-      font-size: 0.78rem;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .combat-quickroll-text {
+      font-size: 0.75rem;
       color: var(--text-muted);
-      cursor: pointer;
       white-space: nowrap;
     }
-    .init-pc-label input[type=checkbox] { accent-color: var(--gold); width: 14px; height: 14px; }
 
-    .init-controls {
+    /* Controls bar */
+    .combat-controls-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
+      padding: 10px 0 8px;
+      border-top: 1px solid var(--border);
+      margin-bottom: 4px;
+    }
+
+    .combat-controls-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .init-round {
       font-size: 0.7rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-dim);
       letter-spacing: 1px;
       text-transform: uppercase;
@@ -1557,8 +1599,9 @@
 
     .init-empty .empty-icon { font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3; }
 
-    @media (max-width: 640px) {
-      .init-add-row input[type=text] { min-width: unset; }
+    @media (max-width: 480px) {
+      .combat-stats-row { gap: 8px; }
+      .combat-input-num { width: 60px; }
     }
   </style>
 </head>
@@ -1784,38 +1827,53 @@
         </div>
         <div class="panel-body">
 
-          <!-- Add combatant -->
-          <div class="init-add-row">
-            <div style="position:relative;flex:1;min-width:0;">
-              <input type="text" id="initName" placeholder="Name…"
+          <!-- Add combatant card -->
+          <div class="combat-add-card">
+            <div class="combat-section-label">Add Combatant</div>
+
+            <!-- Name row -->
+            <div style="position:relative;">
+              <input type="text" id="initName" class="combat-input-full"
+                placeholder="Character, NPC or monster name…"
                 autocomplete="off"
                 onkeydown="if(event.key==='Enter'){closePcSuggest();addCombatant();}"
                 oninput="onInitNameInput(this.value)" onfocus="onInitNameInput(this.value)" />
               <div id="pcSuggestBox" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.4);overflow:hidden;"></div>
             </div>
-            <input type="number" id="initScore" class="init-score-input" placeholder="Init"
-              onkeydown="if(event.key==='Enter')addCombatant()" />
-            <input type="number" id="initMaxHp" class="init-score-input" placeholder="Max HP" min="1"
-              onkeydown="if(event.key==='Enter')addCombatant()" />
-            <button class="btn-primary" onclick="addCombatant()">+ Add</button>
+
+            <!-- Stats row -->
+            <div class="combat-stats-row">
+              <div class="combat-field">
+                <span class="combat-field-label">Initiative</span>
+                <input type="number" id="initScore" class="combat-input-num" placeholder="—"
+                  onkeydown="if(event.key==='Enter')addCombatant()" />
+              </div>
+              <div class="combat-field">
+                <span class="combat-field-label">Max HP</span>
+                <input type="number" id="initMaxHp" class="combat-input-num" placeholder="—" min="1"
+                  onkeydown="if(event.key==='Enter')addCombatant()" />
+              </div>
+              <div class="combat-pc-field">
+                <span class="combat-field-label">PC</span>
+                <input type="checkbox" id="initIsPC" />
+              </div>
+              <button class="btn-primary" onclick="addCombatant()"
+                style="margin-left:auto;align-self:flex-end;padding:9px 20px;">+ Add</button>
+            </div>
           </div>
 
-          <!-- Quick d20 roll -->
-          <div class="init-roll-row">
-            <span class="init-roll-label">Quick roll: d20 +</span>
-            <input type="number" id="initMod" class="init-mod-input" value="0" />
+          <!-- Quick roll strip -->
+          <div class="combat-quickroll">
+            <div class="combat-section-label" style="margin:0;">d20 Quick Roll</div>
+            <span class="combat-quickroll-text">d20 +</span>
+            <input type="number" id="initMod" class="combat-input-num" value="0" style="width:56px;" />
             <button class="sp-btn" onclick="rollInitiative()">🎲 Roll</button>
-            <label class="init-pc-label">
-              <input type="checkbox" id="initIsPC" /> PC
-            </label>
           </div>
 
-          <hr class="divider" />
-
-          <!-- Controls -->
-          <div class="init-controls">
+          <!-- Controls bar -->
+          <div class="combat-controls-bar">
             <span class="init-round" id="initRoundLabel">Not started</span>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div class="combat-controls-btns">
               <button class="sp-btn success" id="initNextBtn" onclick="nextTurn()">▶ Start Combat</button>
               <button class="sp-btn" onclick="resetInitiative()">↺ Reset</button>
               <button class="sp-btn danger" onclick="clearInitiative()">✕ Clear All</button>
