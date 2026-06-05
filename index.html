@@ -1367,6 +1367,18 @@
       vertical-align: middle;
     }
 
+    .pc-suggest-item {
+      padding: 11px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .pc-suggest-item:last-child { border-bottom: none; }
+    .pc-suggest-item:active, .pc-suggest-item:hover { background: var(--surface-hover, rgba(255,255,255,0.07)); }
+
     .init-up-next-label {
       font-size: 0.6rem;
       font-weight: 600;
@@ -1611,18 +1623,15 @@
         <div class="panel-body">
 
           <!-- Add combatant -->
-          <datalist id="pcNames">
-            <option value="Jaquel">
-            <option value="Urizen">
-            <option value="Kaedren">
-            <option value="Veyrin">
-            <option value="Golwen">
-            <option value="Jax">
-          </datalist>
-          <div class="init-add-row">
-            <input type="text" id="initName" list="pcNames" placeholder="Character / NPC / Monster name…"
-              onkeydown="if(event.key==='Enter')addCombatant()"
-              oninput="document.getElementById('initIsPC').checked=PARTY_PCS.has(this.value.trim())" />
+          <div class="init-add-row" style="position:relative;">
+            <div style="position:relative;flex:1;min-width:0;">
+              <input type="text" id="initName" placeholder="Character / NPC / Monster name…"
+                autocomplete="off"
+                onkeydown="if(event.key==='Enter'){closePcSuggest();addCombatant();}"
+                oninput="onInitNameInput(this.value)" onfocus="onInitNameInput(this.value)" />
+              <div id="pcSuggestBox" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.4);overflow:hidden;"></div>
+            </div>
+            </div>
             <input type="number" id="initScore" class="init-score-input" placeholder="Score"
               onkeydown="if(event.key==='Enter')addCombatant()" />
             <button class="btn-primary" onclick="addCombatant()">+ Add</button>
@@ -4073,6 +4082,42 @@ function initSorted() {
     .sort((a, b) => b.score - a.score || a._i - b._i);
 }
 
+function onInitNameInput(val) {
+  const box = document.getElementById('pcSuggestBox');
+  const q = val.trim().toLowerCase();
+  const matches = [...PARTY_PCS].filter(n => n.toLowerCase().startsWith(q));
+  if (!matches.length || val === '') {
+    // show all PCs when field is empty/focused, hide when nothing matches a partial query
+    const show = val === '' ? [...PARTY_PCS] : [];
+    if (!show.length) { box.style.display = 'none'; return; }
+    box.innerHTML = show.map(n =>
+      `<div class="pc-suggest-item" ontouchstart="" onclick="selectPcSuggest('${n}')">${n} <span class="init-pc-badge">PC</span></div>`
+    ).join('');
+    box.style.display = 'block';
+    return;
+  }
+  box.innerHTML = matches.map(n =>
+    `<div class="pc-suggest-item" ontouchstart="" onclick="selectPcSuggest('${n}')">${n} <span class="init-pc-badge">PC</span></div>`
+  ).join('');
+  box.style.display = 'block';
+  document.getElementById('initIsPC').checked = PARTY_PCS.has(val.trim());
+}
+
+function selectPcSuggest(name) {
+  document.getElementById('initName').value = name;
+  document.getElementById('initIsPC').checked = true;
+  closePcSuggest();
+  document.getElementById('initScore').focus();
+}
+
+function closePcSuggest() {
+  document.getElementById('pcSuggestBox').style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#initName') && !e.target.closest('#pcSuggestBox')) closePcSuggest();
+});
+
 function addCombatant() {
   const name  = document.getElementById('initName').value.trim();
   const raw   = document.getElementById('initScore').value;
@@ -4083,6 +4128,7 @@ function addCombatant() {
   initiative.push({ id: uid(), name, score, isPlayer: isPC });
   document.getElementById('initName').value  = '';
   document.getElementById('initScore').value = '';
+  closePcSuggest();
   saveState();
   renderInitiative();
   toast(`${name} added (Init ${score > 0 ? '+' : ''}${score})`, 'arcane');
@@ -4097,6 +4143,7 @@ function rollInitiative() {
   const isPC  = document.getElementById('initIsPC').checked;
   initiative.push({ id: uid(), name, score, isPlayer: isPC });
   document.getElementById('initName').value = '';
+  closePcSuggest();
   saveState();
   renderInitiative();
   toast(`${name}: d20(${roll}) ${mod >= 0 ? '+' : ''}${mod} = ${score}`, 'arcane');
