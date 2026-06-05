@@ -1611,9 +1611,18 @@
         <div class="panel-body">
 
           <!-- Add combatant -->
+          <datalist id="pcNames">
+            <option value="Jaquel">
+            <option value="Urizen">
+            <option value="Kaedren">
+            <option value="Veyrin">
+            <option value="Golwen">
+            <option value="Jax">
+          </datalist>
           <div class="init-add-row">
-            <input type="text" id="initName" placeholder="Character / NPC / Monster name…"
-              onkeydown="if(event.key==='Enter')addCombatant()" />
+            <input type="text" id="initName" list="pcNames" placeholder="Character / NPC / Monster name…"
+              onkeydown="if(event.key==='Enter')addCombatant()"
+              oninput="document.getElementById('initIsPC').checked=PARTY_PCS.has(this.value.trim())" />
             <input type="number" id="initScore" class="init-score-input" placeholder="Score"
               onkeydown="if(event.key==='Enter')addCombatant()" />
             <button class="btn-primary" onclick="addCombatant()">+ Add</button>
@@ -1767,6 +1776,7 @@ let lastAction        = null; // undo snapshot for the most recent cast
 let castingAbilityMod = 0;   // INT/WIS/CHA modifier for Save DC calc
 let levelMetaAdj      = 0;   // transient metamagic adj for the level-spend grid
 let initiative   = [];  // [{ id, name, score, isPlayer }]
+const PARTY_PCS  = new Set(['Jaquel','Urizen','Kaedren','Veyrin','Golwen','Jax']);
 let initTurn     = -1;  // -1 = not started; else index into sorted list
 let initRound    = 1;
 
