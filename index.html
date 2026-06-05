@@ -1302,9 +1302,6 @@
 
     /* Combatant cards */
     .init-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
@@ -1317,6 +1314,15 @@
       border-color: var(--gold);
       background: var(--gold-glow);
       box-shadow: 0 0 14px rgba(201,168,76,0.12);
+    }
+
+    .init-card.downed { opacity: 0.45; }
+    .init-card.downed .init-name { text-decoration: line-through; color: var(--text-dim); }
+
+    .init-card-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .init-card.is-player .init-name { color: var(--gold-light); }
@@ -1355,6 +1361,137 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
+    /* HP row */
+    .combat-hp-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hp-btn {
+      width: 30px; height: 30px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-l);
+      background: var(--surface3);
+      cursor: pointer;
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.1s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .hp-btn:active { background: var(--border); }
+    .hp-btn.minus { color: var(--crimson-l); }
+    .hp-btn.plus  { color: var(--green-l); }
+
+    .hp-current-input {
+      width: 52px;
+      background: var(--surface3);
+      border: 1px solid var(--border-l);
+      border-radius: var(--radius-sm);
+      color: var(--text-head);
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 4px 2px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .hp-current-input:focus { outline: none; border-color: var(--arcane-l); }
+    .hp-current-input.hp-healthy  { color: var(--green-l);   border-color: var(--green); }
+    .hp-current-input.hp-bloodied { color: var(--gold-light); border-color: var(--gold-dim); }
+    .hp-current-input.hp-critical { color: var(--crimson-l); border-color: var(--crimson); }
+    .hp-current-input.hp-zero     { color: var(--text-dim);  border-color: var(--border); }
+
+    .hp-sep { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+
+    .hp-set-btn {
+      font-size: 0.7rem;
+      padding: 4px 9px;
+      background: var(--surface3);
+      border: 1px solid var(--border-l);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .hp-set-btn:active { background: var(--border); }
+
+    .cond-toggle-btn {
+      margin-left: auto;
+      font-size: 0.68rem;
+      padding: 4px 9px;
+      background: var(--surface3);
+      border: 1px solid var(--border-l);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.1s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .cond-toggle-btn:active { background: var(--border); }
+
+    /* Active conditions */
+    .active-conds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .cond-chip {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      border: 1px solid rgba(200,80,80,0.45);
+      background: rgba(200,50,50,0.15);
+      color: #e07070;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      -webkit-user-select: none; user-select: none;
+      transition: opacity 0.1s;
+    }
+    .cond-chip:active { opacity: 0.6; }
+
+    /* Condition picker */
+    .cond-picker {
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--surface3);
+      border: 1px solid var(--border-l);
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .cond-picker-btn {
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 99px;
+      border: 1px solid var(--border-l);
+      background: var(--surface2);
+      color: var(--text-muted);
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      transition: all 0.1s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .cond-picker-btn.active {
+      background: rgba(200,50,50,0.15);
+      border-color: rgba(200,80,80,0.45);
+      color: #e07070;
+    }
+    .cond-picker-btn:active { opacity: 0.7; }
 
     .init-pc-badge {
       display: inline-block;
@@ -1432,7 +1569,7 @@
     </button>
     <button class="tab-btn" onclick="switchTab('initiative')" id="tab-initiative">
       <span class="tab-icon">⚔</span>
-      <span>Init</span>
+      <span>Combat</span>
     </button>
   </div>
 </nav>
@@ -1527,7 +1664,7 @@
     <div class="desktop-tabs">
       <button class="desktop-tab active" id="dtab-spells" onclick="switchDesktopTab('spells')">📜 Spell Repository</button>
       <button class="desktop-tab" id="dtab-prepared" onclick="switchDesktopTab('prepared')">⚡ Prepared Spells</button>
-      <button class="desktop-tab" id="dtab-initiative" onclick="switchDesktopTab('initiative')">⚔ Initiative</button>
+      <button class="desktop-tab" id="dtab-initiative" onclick="switchDesktopTab('initiative')">⚔ Combat</button>
     </div>
 
     <!-- Spell Repository -->
@@ -1621,21 +1758,22 @@
       <div class="panel">
         <div class="panel-header">
           <span class="icon">⚔</span>
-          <h2>Initiative Tracker</h2>
+          <h2>Combat Tracker</h2>
         </div>
         <div class="panel-body">
 
           <!-- Add combatant -->
-          <div class="init-add-row" style="position:relative;">
+          <div class="init-add-row">
             <div style="position:relative;flex:1;min-width:0;">
-              <input type="text" id="initName" placeholder="Character / NPC / Monster name…"
+              <input type="text" id="initName" placeholder="Name…"
                 autocomplete="off"
                 onkeydown="if(event.key==='Enter'){closePcSuggest();addCombatant();}"
                 oninput="onInitNameInput(this.value)" onfocus="onInitNameInput(this.value)" />
               <div id="pcSuggestBox" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.4);overflow:hidden;"></div>
             </div>
-            </div>
-            <input type="number" id="initScore" class="init-score-input" placeholder="Score"
+            <input type="number" id="initScore" class="init-score-input" placeholder="Init"
+              onkeydown="if(event.key==='Enter')addCombatant()" />
+            <input type="number" id="initMaxHp" class="init-score-input" placeholder="Max HP" min="1"
               onkeydown="if(event.key==='Enter')addCombatant()" />
             <button class="btn-primary" onclick="addCombatant()">+ Add</button>
           </div>
@@ -1789,6 +1927,11 @@ let castingAbilityMod = 0;   // INT/WIS/CHA modifier for Save DC calc
 let levelMetaAdj      = 0;   // transient metamagic adj for the level-spend grid
 let initiative   = [];  // [{ id, name, score, isPlayer }]
 const PARTY_PCS  = new Set(['Jaquel','Urizen','Kaedren','Veyrin','Golwen','Jax']);
+const COMBAT_CONDITIONS = [
+  'Blinded','Confused','Dazed','Deafened','Dying','Entangled',
+  'Exhausted','Fatigued','Frightened','Grappled','Nauseated',
+  'Paralysed','Prone','Shaken','Sickened','Stunned','Unconscious'
+];
 let initTurn     = -1;  // -1 = not started; else index into sorted list
 let initRound    = 1;
 
@@ -1804,7 +1947,12 @@ function loadState() {
       log               = s.log               ?? [];
       concentrating     = s.concentrating     ?? null;
       castingAbilityMod = s.castingAbilityMod ?? 0;
-      initiative        = s.initiative        ?? [];
+      initiative = (s.initiative ?? []).map(c => ({
+        ...c,
+        hp:         c.hp         ?? (c.maxHp ?? 0),
+        maxHp:      c.maxHp      ?? 0,
+        conditions: c.conditions ?? []
+      }));
       initTurn          = s.initTurn          ?? -1;
       initRound         = s.initRound         ?? 1;
       // Migrate old entries — add entryId and metamagicAdj if missing
@@ -4121,16 +4269,75 @@ document.addEventListener('click', e => {
   if (!e.target.closest('#initName') && !e.target.closest('#pcSuggestBox')) closePcSuggest();
 });
 
+function adjustHp(id, delta) {
+  const c = initiative.find(x => x.id === id);
+  if (!c) return;
+  c.hp = Math.max(0, Math.min(c.maxHp, c.hp + delta));
+  saveState();
+  renderInitiative();
+}
+
+function setHp(id, val) {
+  const c = initiative.find(x => x.id === id);
+  if (!c) return;
+  const n = parseInt(val);
+  if (isNaN(n)) return;
+  c.hp = Math.max(0, Math.min(c.maxHp, n));
+  saveState();
+  renderInitiative();
+}
+
+function promptSetMaxHp(id) {
+  const c = initiative.find(x => x.id === id);
+  if (!c) return;
+  const val = prompt(`Max HP for ${c.name}:`);
+  if (val === null) return;
+  const n = parseInt(val);
+  if (isNaN(n) || n < 1) return;
+  c.maxHp = n;
+  c.hp    = n;
+  saveState();
+  renderInitiative();
+}
+
+function toggleCondition(id, cond) {
+  const c = initiative.find(x => x.id === id);
+  if (!c) return;
+  const idx = c.conditions.indexOf(cond);
+  if (idx === -1) c.conditions.push(cond);
+  else            c.conditions.splice(idx, 1);
+  saveState();
+  // Update picker button without full re-render
+  const btn = document.querySelector(`#cond-picker-${id} .cond-picker-btn[data-cond="${cond}"]`);
+  if (btn) btn.classList.toggle('active', c.conditions.includes(cond));
+  // Update active chips row
+  const row = document.getElementById(`active-conds-${id}`);
+  if (row) row.innerHTML = buildCondChips(c);
+}
+
+function buildCondChips(c) {
+  return c.conditions.map(cond =>
+    `<span class="cond-chip" onclick="toggleCondition('${c.id}','${cond}')" ontouchstart="">${cond}</span>`
+  ).join('');
+}
+
+function toggleCondPicker(id) {
+  const picker = document.getElementById(`cond-picker-${id}`);
+  if (picker) picker.style.display = picker.style.display === 'none' ? 'flex' : 'none';
+}
+
 function addCombatant() {
   const name  = document.getElementById('initName').value.trim();
   const raw   = document.getElementById('initScore').value;
   const score = parseInt(raw);
   if (!name)     { toast('Enter a name.', 'warn'); return; }
   if (isNaN(score)) { toast('Enter an initiative score.', 'warn'); return; }
-  const isPC = document.getElementById('initIsPC').checked;
-  initiative.push({ id: uid(), name, score, isPlayer: isPC });
+  const isPC  = document.getElementById('initIsPC').checked;
+  const maxHp = parseInt(document.getElementById('initMaxHp').value) || 0;
+  initiative.push({ id: uid(), name, score, isPlayer: isPC, hp: maxHp, maxHp, conditions: [] });
   document.getElementById('initName').value  = '';
   document.getElementById('initScore').value = '';
+  document.getElementById('initMaxHp').value = '';
   closePcSuggest();
   saveState();
   renderInitiative();
@@ -4144,8 +4351,10 @@ function rollInitiative() {
   const roll  = Math.floor(Math.random() * 20) + 1;
   const score = roll + mod;
   const isPC  = document.getElementById('initIsPC').checked;
-  initiative.push({ id: uid(), name, score, isPlayer: isPC });
-  document.getElementById('initName').value = '';
+  const maxHp = parseInt(document.getElementById('initMaxHp').value) || 0;
+  initiative.push({ id: uid(), name, score, isPlayer: isPC, hp: maxHp, maxHp, conditions: [] });
+  document.getElementById('initName').value  = '';
+  document.getElementById('initMaxHp').value = '';
   closePcSuggest();
   saveState();
   renderInitiative();
@@ -4200,10 +4409,18 @@ function clearInitiative() {
   renderInitiative();
 }
 
+function hpClass(c) {
+  if (!c.maxHp) return '';
+  if (c.hp === 0)               return 'hp-zero';
+  if (c.hp / c.maxHp <= 0.25)  return 'hp-critical';
+  if (c.hp / c.maxHp <= 0.5)   return 'hp-bloodied';
+  return 'hp-healthy';
+}
+
 function renderInitiative() {
-  const el        = document.getElementById('initiativeList');
-  const roundEl   = document.getElementById('initRoundLabel');
-  const nextBtn   = document.getElementById('initNextBtn');
+  const el      = document.getElementById('initiativeList');
+  const roundEl = document.getElementById('initRoundLabel');
+  const nextBtn = document.getElementById('initNextBtn');
   if (!el) return;
 
   const started = initTurn >= 0;
@@ -4211,9 +4428,7 @@ function renderInitiative() {
     roundEl.textContent = started ? `Round ${initRound}` : 'Not started';
     roundEl.className   = 'init-round' + (started ? ' active' : '');
   }
-  if (nextBtn) {
-    nextBtn.textContent = started ? '▶ Next Turn' : '▶ Start Combat';
-  }
+  if (nextBtn) nextBtn.textContent = started ? '▶ Next Turn' : '▶ Start Combat';
 
   if (initiative.length === 0) {
     el.innerHTML = `<div class="init-empty">
@@ -4223,22 +4438,59 @@ function renderInitiative() {
     return;
   }
 
-  const sorted = initSorted();
-
-  // During combat, rotate so the active combatant is always at the top
+  const sorted  = initSorted();
   const display = (initTurn >= 0)
     ? [...sorted.slice(initTurn), ...sorted.slice(0, initTurn)]
     : sorted;
 
   el.innerHTML = display.map((c, i) => {
-    const isActive  = initTurn >= 0 && i === 0;
-    const upNext    = initTurn >= 0 && i === 1 && display.length > 1
+    const isActive = initTurn >= 0 && i === 0;
+    const isDowned = c.maxHp > 0 && c.hp === 0;
+    const upNext   = initTurn >= 0 && i === 1 && display.length > 1
       ? `<div class="init-up-next-label">Up Next</div>` : '';
-    return `${upNext}<div class="init-card ${isActive ? 'active' : ''} ${c.isPlayer ? 'is-player' : ''}">
-      <span class="init-turn-arrow">${isActive ? '▶' : ''}</span>
-      <span class="init-score-badge">${c.score}</span>
-      <span class="init-name">${c.name}${c.isPlayer ? '<span class="init-pc-badge">PC</span>' : ''}</span>
-      <button class="prepared-remove" onclick="removeCombatant('${c.id}')" title="Remove">✕</button>
+
+    // HP row
+    const cls = hpClass(c);
+    const hpRow = c.maxHp > 0
+      ? `<div class="combat-hp-row">
+          <button class="hp-btn minus" onclick="adjustHp('${c.id}',-1)" ontouchstart="">−</button>
+          <input class="hp-current-input ${cls}" type="number" value="${c.hp}"
+            min="0" max="${c.maxHp}"
+            onchange="setHp('${c.id}',+this.value)"
+            onkeydown="if(event.key==='Enter')this.blur()" />
+          <span class="hp-sep">/ ${c.maxHp}</span>
+          <button class="hp-btn plus" onclick="adjustHp('${c.id}',1)" ontouchstart="">+</button>
+          <button class="cond-toggle-btn" onclick="toggleCondPicker('${c.id}')" ontouchstart="">⚕ Cond</button>
+        </div>`
+      : `<div class="combat-hp-row">
+          <button class="hp-set-btn" onclick="promptSetMaxHp('${c.id}')" ontouchstart="">♥ Set HP</button>
+          <button class="cond-toggle-btn" onclick="toggleCondPicker('${c.id}')" ontouchstart="">⚕ Cond</button>
+        </div>`;
+
+    // Active conditions chips
+    const condChips = c.conditions.length
+      ? `<div class="active-conds" id="active-conds-${c.id}">${buildCondChips(c)}</div>`
+      : `<div class="active-conds" id="active-conds-${c.id}"></div>`;
+
+    // Condition picker (hidden)
+    const picker = `<div class="cond-picker" id="cond-picker-${c.id}" style="display:none;">
+      ${COMBAT_CONDITIONS.map(cond =>
+        `<button class="cond-picker-btn ${c.conditions.includes(cond) ? 'active' : ''}"
+          data-cond="${cond}" onclick="toggleCondition('${c.id}','${cond}')" ontouchstart="">${cond}</button>`
+      ).join('')}
+    </div>`;
+
+    return `${upNext}
+    <div class="init-card ${isActive ? 'active' : ''} ${c.isPlayer ? 'is-player' : ''} ${isDowned ? 'downed' : ''}">
+      <div class="init-card-main">
+        <span class="init-turn-arrow">${isActive ? '▶' : ''}</span>
+        <span class="init-score-badge">${c.score}</span>
+        <span class="init-name">${c.name}${c.isPlayer ? '<span class="init-pc-badge">PC</span>' : ''}</span>
+        <button class="prepared-remove" onclick="removeCombatant('${c.id}')" title="Remove">✕</button>
+      </div>
+      ${hpRow}
+      ${condChips}
+      ${picker}
     </div>`;
   }).join('');
 }
