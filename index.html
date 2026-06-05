@@ -111,6 +111,27 @@
       margin-left: auto;
     }
 
+    .header-refresh-btn {
+      background: none;
+      border: 1px solid var(--border-l);
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-size: 1rem;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: color 0.15s, border-color 0.15s, transform 0.3s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .header-refresh-btn:hover  { color: var(--gold); border-color: var(--gold-dim); }
+    .header-refresh-btn:active { transform: rotate(180deg); }
+    .header-refresh-btn.spinning { animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     /* ── Layout ───────────────────────────────────────── */
     .layout {
       display: grid;
@@ -1550,6 +1571,7 @@
     <h1><span>Arcane</span> Ledger</h1>
   </div>
   <p>Spell Point Tracker &amp; Repository</p>
+  <button class="header-refresh-btn" id="refreshBtn" onclick="forceRefresh()" title="Refresh app">↻</button>
 </header>
 
 <!-- Mobile Tab Bar -->
@@ -4530,6 +4552,28 @@ renderInitiative();
 if (lastAction === null) document.getElementById('undoBtn').disabled = true;
 switchTab('counter');       // mobile: start on Points tab
 switchDesktopTab('spells'); // desktop: start on Spell Repository
+
+// ── Service Worker registration ────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+async function forceRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } finally {
+    location.reload(true);
+  }
+}
 </script>
 </body>
 </html>
