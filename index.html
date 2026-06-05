@@ -755,7 +755,7 @@
     }
 
     .tab-btn {
-      width: 90px;
+      width: 76px;
       flex: none;
       background: transparent;
       border: none;
@@ -1207,6 +1207,177 @@
     .metamagic-ref .col-feat { color: var(--text); }
     .metamagic-ref .col-adj  { color: var(--text-muted); text-align: center; width: 50px; }
     .metamagic-ref .col-cost { color: var(--gold-light); font-weight: 600; text-align: right; width: 110px; }
+
+    /* ── Initiative Tracker ──────────────────────────── */
+    .init-add-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .init-add-row input[type=text] {
+      flex: 1;
+      min-width: 140px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-head);
+      padding: 9px 12px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .init-add-row input[type=text]:focus { outline: none; border-color: var(--arcane-l); box-shadow: 0 0 0 3px var(--arcane-glow); }
+
+    .init-score-input {
+      width: 74px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-head);
+      padding: 9px 10px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .init-score-input:focus { outline: none; border-color: var(--arcane-l); box-shadow: 0 0 0 3px var(--arcane-glow); }
+
+    .init-roll-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .init-roll-label { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; }
+
+    .init-mod-input {
+      width: 60px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-head);
+      padding: 7px 8px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      text-align: center;
+      transition: border-color 0.15s;
+    }
+    .init-mod-input:focus { outline: none; border-color: var(--arcane-l); }
+
+    .init-pc-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .init-pc-label input[type=checkbox] { accent-color: var(--gold); width: 14px; height: 14px; }
+
+    .init-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .init-round {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .init-round.active { color: var(--gold); }
+
+    /* Combatant cards */
+    .init-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .init-card.active {
+      border-color: var(--gold);
+      background: var(--gold-glow);
+      box-shadow: 0 0 14px rgba(201,168,76,0.12);
+    }
+
+    .init-card.is-player .init-name { color: var(--gold-light); }
+
+    .init-turn-arrow {
+      font-size: 0.75rem;
+      color: var(--gold);
+      width: 12px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .init-score-badge {
+      background: var(--surface3);
+      border: 1px solid var(--border-l);
+      border-radius: var(--radius-sm);
+      color: var(--text-head);
+      font-size: 1rem;
+      font-weight: 700;
+      width: 44px;
+      text-align: center;
+      padding: 4px 0;
+      flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .init-card.active .init-score-badge { border-color: var(--gold); color: var(--gold-light); }
+
+    .init-name {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-head);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .init-pc-badge {
+      display: inline-block;
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-size: 0.58rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 99px;
+      margin-left: 5px;
+      letter-spacing: 0.5px;
+      vertical-align: middle;
+    }
+
+    .init-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+    }
+
+    .init-empty .empty-icon { font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3; }
+
+    @media (max-width: 640px) {
+      .init-add-row input[type=text] { min-width: unset; }
+    }
   </style>
 </head>
 <body>
@@ -1234,6 +1405,10 @@
     <button class="tab-btn" onclick="switchTab('prepared')" id="tab-prepared">
       <span class="tab-icon">⚡</span>
       <span>Prepared</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('initiative')" id="tab-initiative">
+      <span class="tab-icon">⚔</span>
+      <span>Init</span>
     </button>
   </div>
 </nav>
@@ -1328,6 +1503,7 @@
     <div class="desktop-tabs">
       <button class="desktop-tab active" id="dtab-spells" onclick="switchDesktopTab('spells')">📜 Spell Repository</button>
       <button class="desktop-tab" id="dtab-prepared" onclick="switchDesktopTab('prepared')">⚡ Prepared Spells</button>
+      <button class="desktop-tab" id="dtab-initiative" onclick="switchDesktopTab('initiative')">⚔ Initiative</button>
     </div>
 
     <!-- Spell Repository -->
@@ -1412,6 +1588,52 @@
           </div>
           <hr class="divider" />
           <div id="preparedList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Initiative Tracker -->
+    <div class="desktop-panel tab-panel" id="panel-initiative">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">⚔</span>
+          <h2>Initiative Tracker</h2>
+        </div>
+        <div class="panel-body">
+
+          <!-- Add combatant -->
+          <div class="init-add-row">
+            <input type="text" id="initName" placeholder="Character / NPC / Monster name…"
+              onkeydown="if(event.key==='Enter')addCombatant()" />
+            <input type="number" id="initScore" class="init-score-input" placeholder="Score"
+              onkeydown="if(event.key==='Enter')addCombatant()" />
+            <button class="btn-primary" onclick="addCombatant()">+ Add</button>
+          </div>
+
+          <!-- Quick d20 roll -->
+          <div class="init-roll-row">
+            <span class="init-roll-label">Quick roll: d20 +</span>
+            <input type="number" id="initMod" class="init-mod-input" value="0" />
+            <button class="sp-btn" onclick="rollInitiative()">🎲 Roll</button>
+            <label class="init-pc-label">
+              <input type="checkbox" id="initIsPC" /> PC
+            </label>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- Controls -->
+          <div class="init-controls">
+            <span class="init-round" id="initRoundLabel">Not started</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="sp-btn success" id="initNextBtn" onclick="nextTurn()">▶ Start Combat</button>
+              <button class="sp-btn" onclick="resetInitiative()">↺ Reset</button>
+              <button class="sp-btn danger" onclick="clearInitiative()">✕ Clear All</button>
+            </div>
+          </div>
+
+          <div id="initiativeList" style="margin-top:14px;"></div>
+
         </div>
       </div>
     </div>
@@ -1535,6 +1757,9 @@ let concentrating     = null; // { spellId, spellName } | null
 let lastAction        = null; // undo snapshot for the most recent cast
 let castingAbilityMod = 0;   // INT/WIS/CHA modifier for Save DC calc
 let levelMetaAdj      = 0;   // transient metamagic adj for the level-spend grid
+let initiative   = [];  // [{ id, name, score, isPlayer }]
+let initTurn     = -1;  // -1 = not started; else index into sorted list
+let initRound    = 1;
 
 // ── Spell Point Logic ──────────────────────────────────
 function loadState() {
@@ -1548,6 +1773,9 @@ function loadState() {
       log               = s.log               ?? [];
       concentrating     = s.concentrating     ?? null;
       castingAbilityMod = s.castingAbilityMod ?? 0;
+      initiative        = s.initiative        ?? [];
+      initTurn          = s.initTurn          ?? -1;
+      initRound         = s.initRound         ?? 1;
       // Migrate old entries — add entryId and metamagicAdj if missing
       prepared = (s.prepared ?? []).map(p => ({
         entryId: p.entryId ?? uid(), spellId: p.spellId, cast: p.cast,
@@ -1571,7 +1799,10 @@ function saveState() {
     concentrating,
     spells,
     log,
-    prepared
+    prepared,
+    initiative,
+    initTurn,
+    initRound
   }));
 }
 
@@ -3815,6 +4046,129 @@ function renderPrepared() {
   el.innerHTML = html;
 }
 
+// ── Initiative Tracker ────────────────────────────────
+function initSorted() {
+  // Stable-sort by score descending; ties preserve insertion order
+  return initiative
+    .map((c, i) => ({ ...c, _i: i }))
+    .sort((a, b) => b.score - a.score || a._i - b._i);
+}
+
+function addCombatant() {
+  const name  = document.getElementById('initName').value.trim();
+  const raw   = document.getElementById('initScore').value;
+  const score = parseInt(raw);
+  if (!name)     { toast('Enter a name.', 'warn'); return; }
+  if (isNaN(score)) { toast('Enter an initiative score.', 'warn'); return; }
+  const isPC = document.getElementById('initIsPC').checked;
+  initiative.push({ id: uid(), name, score, isPlayer: isPC });
+  document.getElementById('initName').value  = '';
+  document.getElementById('initScore').value = '';
+  saveState();
+  renderInitiative();
+  toast(`${name} added (Init ${score > 0 ? '+' : ''}${score})`, 'arcane');
+}
+
+function rollInitiative() {
+  const name = document.getElementById('initName').value.trim();
+  if (!name) { toast('Enter a name first.', 'warn'); return; }
+  const mod   = parseInt(document.getElementById('initMod').value) || 0;
+  const roll  = Math.floor(Math.random() * 20) + 1;
+  const score = roll + mod;
+  const isPC  = document.getElementById('initIsPC').checked;
+  initiative.push({ id: uid(), name, score, isPlayer: isPC });
+  document.getElementById('initName').value = '';
+  saveState();
+  renderInitiative();
+  toast(`${name}: d20(${roll}) ${mod >= 0 ? '+' : ''}${mod} = ${score}`, 'arcane');
+}
+
+function removeCombatant(id) {
+  const sorted = initSorted();
+  initiative = initiative.filter(c => c.id !== id);
+  // Keep turn pointer valid after removal
+  if (initTurn >= 0) {
+    const newSorted = initSorted();
+    const stillActive = newSorted.findIndex(c => c.id === sorted[initTurn]?.id);
+    initTurn = stillActive >= 0 ? stillActive : Math.min(initTurn, newSorted.length - 1);
+    if (initiative.length === 0) { initTurn = -1; initRound = 1; }
+  }
+  saveState();
+  renderInitiative();
+}
+
+function nextTurn() {
+  if (initiative.length === 0) return;
+  const sorted = initSorted();
+  if (initTurn === -1) {
+    initTurn = 0;
+  } else {
+    initTurn = (initTurn + 1) % sorted.length;
+    if (initTurn === 0) {
+      initRound++;
+      toast(`Round ${initRound} begins!`, 'success');
+    }
+  }
+  saveState();
+  renderInitiative();
+  // Scroll active card into view on mobile
+  const active = document.querySelector('.init-card.active');
+  if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function resetInitiative() {
+  initTurn = -1;
+  initRound = 1;
+  saveState();
+  renderInitiative();
+  toast('Initiative reset to start.', '');
+}
+
+function clearInitiative() {
+  if (initiative.length === 0) return;
+  if (!confirm('Clear all combatants and reset initiative?')) return;
+  initiative = [];
+  initTurn   = -1;
+  initRound  = 1;
+  saveState();
+  renderInitiative();
+}
+
+function renderInitiative() {
+  const el        = document.getElementById('initiativeList');
+  const roundEl   = document.getElementById('initRoundLabel');
+  const nextBtn   = document.getElementById('initNextBtn');
+  if (!el) return;
+
+  const started = initTurn >= 0;
+  if (roundEl) {
+    roundEl.textContent = started ? `Round ${initRound}` : 'Not started';
+    roundEl.className   = 'init-round' + (started ? ' active' : '');
+  }
+  if (nextBtn) {
+    nextBtn.textContent = started ? '▶ Next Turn' : '▶ Start Combat';
+  }
+
+  if (initiative.length === 0) {
+    el.innerHTML = `<div class="init-empty">
+      <span class="empty-icon">⚔</span>
+      <p>No combatants yet.<br>Add characters, NPCs, and monsters above.</p>
+    </div>`;
+    return;
+  }
+
+  const sorted = initSorted();
+  el.innerHTML = sorted.map((c, i) => {
+    const isActive = initTurn === i;
+    return `<div class="init-card ${isActive ? 'active' : ''} ${c.isPlayer ? 'is-player' : ''}">
+      <span class="init-turn-arrow">${isActive ? '▶' : ''}</span>
+      <span class="init-score-badge">${c.score}</span>
+      <span class="init-name">${c.name}${c.isPlayer ? '<span class="init-pc-badge">PC</span>' : ''}</span>
+      <button class="prepared-remove" onclick="removeCombatant('${c.id}')" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
 // ── Tab Switching (mobile bottom bar) ─────────────────
 function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -3846,6 +4200,7 @@ renderTable();
 renderPrepared();
 renderSaveDC();
 renderConcBanner();
+renderInitiative();
 if (lastAction === null) document.getElementById('undoBtn').disabled = true;
 switchTab('counter');       // mobile: start on Points tab
 switchDesktopTab('spells'); // desktop: start on Spell Repository
