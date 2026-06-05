@@ -1367,6 +1367,15 @@
       vertical-align: middle;
     }
 
+    .init-up-next-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 10px 2px 4px;
+    }
+
     .init-empty {
       text-align: center;
       padding: 40px 20px;
@@ -4111,9 +4120,6 @@ function nextTurn() {
   }
   saveState();
   renderInitiative();
-  // Scroll active card into view on mobile
-  const active = document.querySelector('.init-card.active');
-  if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function resetInitiative() {
@@ -4158,9 +4164,17 @@ function renderInitiative() {
   }
 
   const sorted = initSorted();
-  el.innerHTML = sorted.map((c, i) => {
-    const isActive = initTurn === i;
-    return `<div class="init-card ${isActive ? 'active' : ''} ${c.isPlayer ? 'is-player' : ''}">
+
+  // During combat, rotate so the active combatant is always at the top
+  const display = (initTurn >= 0)
+    ? [...sorted.slice(initTurn), ...sorted.slice(0, initTurn)]
+    : sorted;
+
+  el.innerHTML = display.map((c, i) => {
+    const isActive  = initTurn >= 0 && i === 0;
+    const upNext    = initTurn >= 0 && i === 1 && display.length > 1
+      ? `<div class="init-up-next-label">Up Next</div>` : '';
+    return `${upNext}<div class="init-card ${isActive ? 'active' : ''} ${c.isPlayer ? 'is-player' : ''}">
       <span class="init-turn-arrow">${isActive ? '▶' : ''}</span>
       <span class="init-score-badge">${c.score}</span>
       <span class="init-name">${c.name}${c.isPlayer ? '<span class="init-pc-badge">PC</span>' : ''}</span>
